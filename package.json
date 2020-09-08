@@ -1,0 +1,35 @@
+{
+  "name": "marble-bond",
+  "version": "1.0.0",
+  "description": "WebGame",
+  "main": "index.ts",
+  "scripts": {
+    "tsc": "tsc",
+    "tslint": "tslint",
+    "webpack": "webpack --config webpack.dev.js",
+    "build": "webpack --config webpack.prod.js",
+    "start": "webpack-dev-server --config webpack.dev.js --open"
+  },
+  "author": "DVL",
+  "license": "ISC",
+  "devDependencies": {
+    "clean-webpack-plugin": "^3.0.0",
+    "css-loader": "^4.2.2",
+    "file-loader": "^6.0.0",
+    "html-loader": "^1.3.0",
+    "html-webpack-plugin": "^4.4.1",
+    "mini-css-extract-plugin": "^0.11.0",
+    "node-sass": "^4.14.1",
+    "optimize-css-assets-webpack-plugin": "^5.0.4",
+    "rxjs": "^6.6.2",
+    "sass-loader": "^10.0.1",
+    "style-loader": "^1.2.1",
+    "ts-loader": "^8.0.3",
+    "tslint": "^6.1.3",
+    "typescript": "^4.0.2",
+    "webpack": "^4.44.1",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.0",
+    "webpack-merge": "^5.1.3"
+  }
+}

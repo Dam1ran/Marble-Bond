@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Marble-Bond</title>
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="controls">
+        <div class="open_save">
+          <label for="fileInput">Open Game:</label>
+          <input type="file" id="fileInput">
+          <input type="text" maxlength="10" id="saveFileName">
+          <button id="saveBtn">Save</button>
+        </div>
+        <div id="infos">
+          <div class="infoBlocks">
+            <img src="./assets/marble.png" alt="marble" width="29" height="29">
+            <div class="number">Marbles:</div><div class="marbleNumberDisplay">0</div>
+          </div>
+          <div class="infoBlocks">
+            <img src="./assets/bond.png" alt="marble" width="29" height="29">
+            <div class="number">Bonds:</div><div class="bondNumberDisplay">0</div>
+          </div>
+          <div class="infoBlocks">
+            <img src="./assets/bond_intersected.png" alt="bonds" width="29" height="29">
+            <div class="number">Cross:</div><div class="bondIntersectedNumberDisplay">0</div>
+          </div>
+        </div>
+        <div class="impossible">You Cannot Make all Bonds :(</div>
+        <div id="generators">
+          <button id="generateEasy">Generate Easy</button>
+          <button id="generateMedium">Generate Medium</button>
+          <button id="generateHard">Generate Hard</button>
+          <button id="generateExtreme">Generate Extreme</button>
+          <button id="clearBtn">Clear</button>
+        </div>
+      
+        <div class="stages">
+          <p>Stages...</p>
+          <button>1</button>
+          <button>2</button>
+          <button>3</button>
+          <button>4</button>
+        </div>
+        <button onclick="test()">test</button>
+      
+      </div>  
+
+      <div class="screen">
+        <canvas></canvas>      
+      </div>
+    </div>
+  </body>
+</html>

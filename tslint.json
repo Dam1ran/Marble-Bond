@@ -1,0 +1,46 @@
+{
+    "linterOptions": {
+        "exclude": [
+            ""
+        ]
+    },
+    "defaultSeverity": "error",
+    "extends": [
+        "tslint:recommended"
+    ],
+    "jsRules": {},
+    "rules": {
+        "align": {
+            "options": [
+                "parameters",
+                "statements"
+            ]
+        },
+        "array-type": false,
+        "arrow-return-shorthand": true,
+        "curly": true,
+        "deprecation": {
+            "severity": "warning"
+        },
+        "eofline": true,
+        "quotemark": [
+            true,
+            "single"
+        ],
+        "semicolon": {
+            "options": [
+                "always"
+            ]
+        },
+        "no-console": [
+            true,
+            "debug",
+            "info",
+            "time",
+            "timeEnd",
+            "trace"
+        ],
+        "prefer-for-of": false
+    },
+    "rulesDirectory": []
+}

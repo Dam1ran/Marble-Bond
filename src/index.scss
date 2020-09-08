@@ -1,0 +1,143 @@
+html,
+body {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  font-size: 62.5%;
+  outline: none;
+}
+
+*,
+*:after,
+*:before {
+  box-sizing: inherit;
+}
+
+ul {
+  list-style: none;
+}
+
+body {
+  height: 100vh;
+  width: 100%;
+  font-size: 1.6rem; /*16px now*/
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  text-shadow: rgba(0, 0, 0, 0.1) 0 0 1px;
+
+  background-color: white;
+}
+
+button {
+  outline: none;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 3px;
+  padding: 3px 8px;
+  margin: 3px;
+  transition: all 0.3s;
+  box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.0),
+  0 0 2px rgba(0, 0, 0, 0.5);
+  background-color: rgba(80,80,130,0.5);
+  color: white;
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
+  &:hover{
+    cursor: pointer;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
+    border: 1px solid grey;
+  }
+  &:active {
+    background-color: rgba(0, 0, 0, 0.1);
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
+    color: rgba(0, 0, 0, 0.5);
+  }
+}
+
+
+.wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  .controls{
+    border: 1px solid grey;
+    padding: 15px;
+    background-color: rgba(144, 131, 145, 0.5);    
+    border-radius: 5px;
+    width: 600px;
+    height: 700px;
+    box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.05),
+    0 3px 14px 2px rgba(0, 0, 0, 0.05),
+    inset 0 0 10px rgba(0, 0, 0, 0.5);
+    margin: 5px 10px;
+    .open_save {
+      padding-left: 10px;
+      border: 1px solid grey;
+      border-radius: 3px;
+    }
+    input {
+      border-radius: 3px;
+      background-color: rgba(0,0,0,0.1);
+    }
+    #infos {
+      display: flex;
+      border: 1px solid grey;
+      margin-top: 10px;
+      border-radius: 2px;
+      padding: 5px;
+      box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.05), 0 3px 14px 2px rgba(0, 0, 0, 0.05);      
+      .infoBlocks {
+        display: flex;
+        width: 185px;
+        img {
+          border-radius: 3px;
+          border: 1px solid rgb(70,150,255);
+          box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+        }
+        .number, .marbleNumberDisplay, .bondNumberDisplay, .bondIntersectedNumberDisplay {
+          line-height: 29px;
+          padding-left: 10px;
+          text-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+          font-weight: 700;
+          color: rgb(70,70,70);
+          user-select: none;
+        }
+
+      }
+    }
+    .impossible{
+      border: 1px solid grey;
+      padding: 0 5px;
+      background-color: rgba(255, 150, 150, 0.5);
+      border-radius: 3px;
+      margin-top: 10px;
+      text-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
+      font-weight: 700;
+      color: rgb(50,50,50);
+      padding: 5px;
+      text-align: center;
+      display: none;
+    }
+    #generators {
+      margin-top: 10px;
+    }
+    .stages {
+      p {
+        font-weight: 700;
+        color: rgb(50, 100, 150);
+      }
+    }
+  }
+  .screen {
+    width: 610px;
+    height: 710px;
+    margin: 0 10px;
+    canvas {
+      border: 1px solid grey;
+      border-radius: 5px;
+      width: 600px;
+      height: 700px;
+      box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.05),
+      0 3px 14px 2px rgba(0, 0, 0, 0.05);
+      margin: 5px auto;
+    }
+  }
+}
