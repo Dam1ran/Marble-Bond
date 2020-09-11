@@ -23,9 +23,9 @@ export class Marble {
   constructor(
     private ctx: CanvasRenderingContext2D,
     public position: Point,
-    public marbleNumber: number,
+    public marbleNr: number,
     public ringColor = Colors.line,
-    public isDrawNumber = true,
+    public isDrawNr = true
   ) {
     this.init();
   }
@@ -71,7 +71,7 @@ export class Marble {
     if (this.selected) {
       this.drawSelected();
     }
-    if (this.isDrawNumber) {
+    if (this.isDrawNr) {
       this.drawNumber();
     }
   }
@@ -81,7 +81,7 @@ export class Marble {
     this.ctx.fillStyle = Colors.number;
     this.ctx.textAlign = 'center';
     this.ctx.fillText(
-      (this.marbleNumber + 0).toString(), // + 1
+      (this.marbleNr + 0).toString(), // + 1
       this.position.xPos,
       this.position.yPos + 5
     );

@@ -5,6 +5,8 @@ import { Mouse } from './helpers/mouse';
 import { MarbleContainer } from './entities/marbleContainer';
 import { StageManager } from './helpers/stageManager';
 import { Listeners } from './helpers/listeners';
+import { Sounds } from './helpers/sounds';
+import { Sound } from './helpers/sound';
 
 export default class MainEntry extends StageManager {
   canvas: HTMLCanvasElement | null;
@@ -68,8 +70,12 @@ export default class MainEntry extends StageManager {
       () => {
         if (this.marblesContainer.isHighlight) {
           document.body.style.cursor = 'pointer';
+          Sound.playOnce(Sounds.pick);
+          Sound.reset(Sounds.drop);
         } else {
           document.body.style.cursor = 'default';
+          Sound.reset(Sounds.pick);
+          Sound.playOnce(Sounds.drop);
         }
       }
     );
@@ -80,13 +86,13 @@ export default class MainEntry extends StageManager {
 
     if (this.isDrawingObjects) {
 
-      const nrOfMarbles = this.marblesContainer.numberOfMarbles;
-      const nrOfBonds = this.marblesContainer.numberOfBonds;
-      const nrOfInterBonds = this.marblesContainer.numberOfIntersectedBonds;
+      const nrOfMarbles = this.marblesContainer.nrOfMarbles;
+      const nrOfBonds = this.marblesContainer.nrOfBonds;
+      const nrOfInterBonds = this.marblesContainer.nrOfIntersectedBonds;
 
-      this.listeners.marbleNumberDisplayElement.innerText = nrOfMarbles.toString();
-      this.listeners.bondNumberDisplayElement.innerText = nrOfBonds.toString();
-      this.listeners.bondIntersectedNumberDisplayElement.innerText = nrOfInterBonds.toString();
+      this.listeners.marbleNrDisplayElement.innerText = nrOfMarbles.toString();
+      this.listeners.bondNrDisplayElement.innerText = nrOfBonds.toString();
+      this.listeners.bondIntersectedNrDisplayElement.innerText = nrOfInterBonds.toString();
 
       if (nrOfBonds > ((nrOfMarbles - 2) * 3)) {
         if (nrOfMarbles > 3) {
@@ -96,7 +102,7 @@ export default class MainEntry extends StageManager {
         this.listeners.impossibleTextElement.style.display = 'none';
       }
     } else if (this.listeners != null) {
-      this.listeners.marbleNumberDisplayElement.innerText = '0';
+      this.listeners.marbleNrDisplayElement.innerText = '0';
     }
   }
 
@@ -116,7 +122,10 @@ export default class MainEntry extends StageManager {
   }
 
   test(): void {
-    console.log('test');
+    // console.log('test');
+    // const ziu = new Sounds();
+
+    // ziu.add.play();
   }
 
 }

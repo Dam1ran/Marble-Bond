@@ -30,12 +30,12 @@ export class StageManager {
       cMarble.bonds.forEach((bond)=> {
         const marble = this.getMarbleByPosition(bond.pointEnd);
         if (marble != null) {
-          conn.push(marble.marbleNumber);
+          conn.push(marble.marbleNr);
         }
       });
 
       marblesData.push(
-        new MarbleData(cMarble.position, cMarble.marbleNumber, conn)
+        new MarbleData(cMarble.position, cMarble.marbleNr, conn)
       );
     });
 
@@ -70,7 +70,8 @@ export class StageManager {
 
   loadData(marbleData: MarbleData[]): void {
     this.marblesContainer.collection = [];
-    this.marblesContainer.ordinalMarbleNumber = 0;
+    this.marblesContainer.ordinalMarbleNr = 0;
+    this.marblesContainer.prevNrOfIntersectedBonds = 9999;
 
     marbleData.forEach(md => {
       this.marblesContainer.addMarble(md.pos);

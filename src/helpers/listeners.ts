@@ -2,19 +2,26 @@ import MainEntry from '../main';
 import { MarbleData } from './marbleData';
 import { Generator } from './generator';
 import { Variables } from './variables';
-
+import { Sounds } from './sounds';
+import { Sound } from './sound';
 export class Listeners {
 
   generator: Generator;
-  marbleNumberDisplayElement = document.querySelector('.marbleNumberDisplay') as HTMLDivElement;
-  bondNumberDisplayElement = document.querySelector('.bondNumberDisplay') as HTMLDivElement;
-  bondIntersectedNumberDisplayElement = document.querySelector('.bondIntersectedNumberDisplay') as HTMLDivElement;
+  marbleNrDisplayElement = document.querySelector('.marbleNrDisplay') as HTMLDivElement;
+  bondNrDisplayElement = document.querySelector('.bondNrDisplay') as HTMLDivElement;
+  bondIntersectedNrDisplayElement = document.querySelector('.bondIntersectedNrDisplay') as HTMLDivElement;
   impossibleTextElement = document.querySelector('.impossible') as HTMLDivElement;
 
   generateEasyBtnElement = document.getElementById('generateEasy') as HTMLButtonElement;
   generateMediumBtnElement = document.getElementById('generateMedium') as HTMLButtonElement;
   generateHardBtnElement = document.getElementById('generateHard') as HTMLButtonElement;
   generateExtremeBtnElement = document.getElementById('generateExtreme') as HTMLButtonElement;
+
+  decreaseBtnElement = document.getElementById('decrease') as HTMLButtonElement;
+  resetBtnElement = document.getElementById('reset') as HTMLButtonElement;
+  increaseBtnElement = document.getElementById('increase') as HTMLButtonElement;
+
+
 
   constructor(private main: MainEntry){
     this.initHtmlListeners();
@@ -23,6 +30,7 @@ export class Listeners {
     this.initStageButtons();
     this.initGenerationButtons();
     this.generator = new Generator(main.width, main.height);
+    this.initSizeButtons();
   }
 
   private initHtmlListeners(): void {
@@ -41,9 +49,10 @@ export class Listeners {
     const clearBtn = document.getElementById('clearBtn') as HTMLButtonElement;
     clearBtn.onclick = () => {
       this.main.marblesContainer.collection = [];
-      this.main.marblesContainer.ordinalMarbleNumber = 0;
+      this.main.marblesContainer.ordinalMarbleNr = 0;
       this.main.marblesContainer.highlight();
       this.main.listeners.impossibleTextElement.style.display = 'none';
+      Sound.play(Sounds.clear);
     };
 
     window.addEventListener('mousemove', (event: MouseEvent) => {
@@ -91,7 +100,7 @@ export class Listeners {
           text => {
             try {
               const marbleData = JSON.parse(text) as MarbleData[];
-              // fileInput.value = '';
+              fileInput.value = '';
               this.main.loadData(marbleData);
               this.updateContent();
             } catch (e) {
@@ -116,7 +125,7 @@ export class Listeners {
 
 
         this.main.marblesContainer.addMarble(this.main.mouse.point);
-
+        Sound.play(Sounds.add);
         console.log('A');
       }
 
@@ -129,24 +138,12 @@ export class Listeners {
 
       if (event.key !== undefined && event.key === 'b') {
         handled = true;
-        // let ziu = this.generator.test({...this.main.mouse.point});
-        // this.main.loadData(ziu);
-        Variables.marbleRadius++;
-        Variables.ringWidth++;
-
-        Variables.fontNrSize = (Variables.marbleRadius >= 6) && (Variables.marbleRadius <= 13) ? (Variables.marbleRadius + 2) : 15;
-        Variables.lineWidth++;
 
         console.log('B');
       }
 
       if (event.key !== undefined && event.key === 'r') {
         handled = true;
-        // console.log(this.generator.getEmptyTriangle());
-        Variables.marbleRadius--;
-        Variables.lineWidth--;
-        Variables.ringWidth--;
-        Variables.fontNrSize = (Variables.marbleRadius >= 6) && (Variables.marbleRadius <= 13) ? (Variables.marbleRadius + 2) : 15;
 
 
         console.log('R');
@@ -155,15 +152,8 @@ export class Listeners {
       if (event.key !== undefined && event.key === 'l') {
         handled = true;
 
-        // if (this.main.marblesContainer.isPointInTriangle({...this.main.mouse.point})) {
-        //   console.log('IN');
-          
-        // } else {
-          
-        //   console.log('OUT');
-        // }
-        // StateManager.load(this.marblesContainer);
-        // console.log('L');
+
+        console.log('L');
       }
 
       if (event.key !== undefined && event.key === 'k') {
@@ -187,7 +177,7 @@ export class Listeners {
     }, true);
   }
 
-  initStageButtons() {
+  private initStageButtons(): void {
     const buttons = document.getElementsByClassName('stages')[0].getElementsByTagName('button');
     for(let i = 0; i < buttons.length; i++) {
       buttons.item(i).onclick = (e) => {
@@ -197,33 +187,90 @@ export class Listeners {
     }
   }
 
-  initGenerationButtons() {
+  private initGenerationButtons(): void {
+
     this.generateEasyBtnElement.onclick = () => {
       const md = this.generator.generateEasy();
       this.main.loadData(md);
       this.updateContent();
+      Sound.play(Sounds.generate);
     };
 
     this.generateMediumBtnElement.onclick = () => {
       const md = this.generator.generateMedium();
       this.main.loadData(md);
       this.updateContent();
+      Sound.play(Sounds.generate);
     };
 
     this.generateHardBtnElement.onclick = () => {
       const md = this.generator.generateHard();
       this.main.loadData(md);
       this.updateContent();
+      Sound.play(Sounds.generate);
     };
 
     this.generateExtremeBtnElement.onclick = () => {
       const md = this.generator.generateExtreme();
       this.main.loadData(md);
       this.updateContent();
+      Sound.play(Sounds.generate);
+    };
+
+  }
+
+  private initSizeButtons(): void {
+
+    this.decreaseBtnElement.onclick = () => {
+
+      Variables.marbleRadius = Variables.marbleRadius > 4 ?
+        --Variables.marbleRadius
+        : Variables.marbleRadius;
+
+      Variables.ringWidth = Variables.ringWidth > 1 ?
+        --Variables.ringWidth
+        : Variables.ringWidth;
+
+      Variables.lineWidth = (Variables.lineWidth > 1 && (Variables.marbleRadius < 5 || Variables.marbleRadius > 12)) ?
+        --Variables.lineWidth
+        : Variables.lineWidth;
+
+      Variables.fontNrSize = (Variables.marbleRadius >= 6) && (Variables.marbleRadius <= 13) ?
+        (Variables.marbleRadius + 2)
+        : 15;
+    };
+
+    this.resetBtnElement.onclick = () => {
+
+      Variables.marbleRadius = 13;
+      Variables.ringWidth = 2;
+      Variables.lineWidth = 2;
+      Variables.fontNrSize = 13;
+
+    };
+
+    this.increaseBtnElement.onclick = () => {
+
+      Variables.marbleRadius = Variables.marbleRadius < Variables.maxMarbleRadius ?
+      ++Variables.marbleRadius
+      : Variables.marbleRadius;
+
+      Variables.ringWidth = (Variables.ringWidth < Variables.maxRingWidth && Variables.marbleRadius > 12) ?
+        ++Variables.ringWidth
+        : Variables.ringWidth;
+
+      Variables.lineWidth = ((Variables.lineWidth < Variables.maxLineWidth) && ((Variables.marbleRadius > 12) || (Variables.marbleRadius < 6))) ?
+        ++Variables.lineWidth
+        : Variables.lineWidth;
+
+      Variables.fontNrSize = (Variables.marbleRadius >= 6) && (Variables.marbleRadius <= 13) ?
+        (Variables.marbleRadius + 2)
+        : 15;
+
     };
   }
 
-  updateContent(): void {
+  private updateContent(): void {
     this.main.marblesContainer.highlight();
     this.main.marblesContainer.checkWinState();
     this.main.marblesContainer.highlight();

@@ -72,6 +72,13 @@ button {
       padding-left: 10px;
       border: 1px solid grey;
       border-radius: 3px;
+      #fileInput{
+        width: 180px;
+      }
+      #saveFileName{
+        width: 140px;
+        margin-left: 20px;
+      }
     }
     input {
       border-radius: 3px;
@@ -92,7 +99,7 @@ button {
           border: 1px solid rgb(70,150,255);
           box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
         }
-        .number, .marbleNumberDisplay, .bondNumberDisplay, .bondIntersectedNumberDisplay {
+        .number, .marbleNrDisplay, .bondNrDisplay, .bondIntersectedNrDisplay {
           line-height: 29px;
           padding-left: 10px;
           text-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
@@ -118,6 +125,9 @@ button {
     }
     #generators {
       margin-top: 10px;
+    }
+    .sizes {
+      // text-align: center;
     }
     .stages {
       p {

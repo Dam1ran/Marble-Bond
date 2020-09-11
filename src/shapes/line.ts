@@ -36,28 +36,21 @@ export class Line {
     let gamma: number;
     let lambda: number;
 
-    det =
-      (line.pointEnd.xPos - line.pointStart.xPos) *
-        (this.pointEnd.yPos - this.pointStart.yPos) -
-      (this.pointEnd.xPos - this.pointStart.xPos) *
-        (line.pointEnd.yPos - line.pointStart.yPos);
+    det = (line.pointEnd.xPos - line.pointStart.xPos) * (this.pointEnd.yPos - this.pointStart.yPos) -
+          (this.pointEnd.xPos - this.pointStart.xPos) * (line.pointEnd.yPos - line.pointStart.yPos);
 
     if (det === 0) {
       return false;
     } else {
-      lambda =
-        ((this.pointEnd.yPos - this.pointStart.yPos) *
-          (this.pointEnd.xPos - line.pointStart.xPos) +
-          (this.pointStart.xPos - this.pointEnd.xPos) *
-            (this.pointEnd.yPos - line.pointStart.yPos)) /
-        det;
+      lambda = (
+        (this.pointEnd.yPos - this.pointStart.yPos) * (this.pointEnd.xPos - line.pointStart.xPos) +
+        (this.pointStart.xPos - this.pointEnd.xPos) * (this.pointEnd.yPos - line.pointStart.yPos)
+        ) / det;
 
-      gamma =
-        ((line.pointStart.yPos - line.pointEnd.yPos) *
-          (this.pointEnd.xPos - line.pointStart.xPos) +
-          (line.pointEnd.xPos - line.pointStart.xPos) *
-            (this.pointEnd.yPos - line.pointStart.yPos)) /
-        det;
+      gamma = (
+        (line.pointStart.yPos - line.pointEnd.yPos) * (this.pointEnd.xPos - line.pointStart.xPos) +
+        (line.pointEnd.xPos - line.pointStart.xPos) * (this.pointEnd.yPos - line.pointStart.yPos)
+        ) / det;
 
       return 0 < lambda && lambda < 1 && 0 < gamma && gamma < 1;
     }

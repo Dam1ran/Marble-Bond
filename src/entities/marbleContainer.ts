@@ -3,12 +3,14 @@ import { Point } from '../shapes/point';
 import { Observable, Subscriber } from 'rxjs';
 import { Mouse } from '../helpers/mouse';
 import { BondCreator } from './bondCreator';
+import { Sounds } from '../helpers/sounds';
+import { Sound } from '../helpers/sound';
 
 export class MarbleContainer extends BondCreator{
   modified$: Observable<boolean>;
   private hasMarblesObserver = new Subscriber<boolean>();
 
-  ordinalMarbleNumber = 0;
+  ordinalMarbleNr = 0;
   isHighlight = false;
 
   constructor(ctx: CanvasRenderingContext2D){
@@ -20,9 +22,9 @@ export class MarbleContainer extends BondCreator{
 
   addMarble(position: Point): void {
     this.collection.push(
-      new Marble(this.ctx, { ...position },this.ordinalMarbleNumber)
+      new Marble(this.ctx, { ...position },this.ordinalMarbleNr)
     );
-    this.ordinalMarbleNumber++;
+    this.ordinalMarbleNr++;
     this.highlight();
     this.checkWinState();
     this.highlight();
@@ -38,12 +40,13 @@ export class MarbleContainer extends BondCreator{
           marble.removeBond(this.selectedMarble);
         });
         this.collection.splice(indexToDelete,1);
+        Sound.play(Sounds.delete);
       }
     }
     const isNotEmpty = this.collection.length > 0;
     this.hasMarblesObserver.next(isNotEmpty);
     if (!isNotEmpty) {
-      this.ordinalMarbleNumber = 0;
+      this.ordinalMarbleNr = 0;
     }
     this.highlight();
     this.checkWinState();
