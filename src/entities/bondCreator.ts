@@ -142,7 +142,6 @@ export class BondCreator {
     if (this.prevNrOfIntersectedBonds < this.nrOfIntersectedBonds) {
       Sound.play(Sounds.intersect);
       this.prevNrOfIntersectedBonds = this.nrOfIntersectedBonds;
-      console.log('gg')
     } else {
       this.prevNrOfIntersectedBonds = this.nrOfIntersectedBonds;
     }
