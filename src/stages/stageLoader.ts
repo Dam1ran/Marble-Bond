@@ -2,14 +2,14 @@ import { MarbleData } from '../helpers/marbleData';
 
 export class StageLoader {
 
-  stages = new Array<Array<MarbleData>>();
+  private stages = new Array<Array<MarbleData>>();
 
-  load(stageNumber: number): Array<MarbleData> {
+  getStageBy(stageNumber: number): Array<MarbleData> {
     this.initStages();
     return this.stages[stageNumber - 1];
   }
 
-  initStages(): void {
+  private initStages(): void {
     if (this.stages.length === 0) {
       this.stages.push(
         [ // 01
@@ -43,7 +43,13 @@ export class StageLoader {
           { pos: { xPos: 398, yPos: 494 }, nr: 5, conn: [6] },
           { pos: { xPos: 196, yPos: 493 }, nr: 6, conn: [4] },
           { pos: { xPos: 300, yPos: 620 }, nr: 7, conn: [2,1,0] },
-        ]
+        ],
+        [ // 05
+          { pos: { xPos: 300, yPos: 100 }, nr:  0, conn: [1] },
+          { pos: { xPos: 300, yPos: 200 }, nr:  1, conn: [ ] },
+          { pos: { xPos: 100, yPos: 350 }, nr:  2, conn: [3] },
+          { pos: { xPos: 500, yPos: 350 }, nr:  3, conn: [ ] },
+        ],
       );
     }
 

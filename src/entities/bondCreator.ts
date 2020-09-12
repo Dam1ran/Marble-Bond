@@ -14,14 +14,13 @@ export class BondCreator {
 
   protected creationBondLine: Line;
   protected isBondLineDone = false;
-  private startMarbleNrForCreation = -1;
-  private endMarbleNrForCreation = -1;
+  private _startMarbleNrForCreation = -1;
+  private _endMarbleNrForCreation = -1;
 
   nrOfMarbles = 0;
   nrOfBonds = 0;
   nrOfIntersectedBonds = 0;
   prevNrOfIntersectedBonds = 9999;
-  intersected = false;
 
   constructor(protected ctx: CanvasRenderingContext2D) {}
 
@@ -29,7 +28,7 @@ export class BondCreator {
     if (mouse.middleClicked) {
       if (!mouse.middleHold && this.selectedMarble != null) {
         mouse.middleHold = true;
-        this.startMarbleNrForCreation = this.selectedMarble.marbleNr;
+        this._startMarbleNrForCreation = this.selectedMarble.marbleNr;
 
         this.selectedMarble.ringColor = Colors.creation;
         Sound.playOnce(Sounds.draw);
@@ -39,21 +38,21 @@ export class BondCreator {
         this.setMaxSelectedMarble(mouse.point);
         if (this.selectedMarble != null){
           this.creationBondLine.pointEnd = {...this.selectedMarble.position};
-          this.endMarbleNrForCreation = this.selectedMarble.marbleNr;
+          this._endMarbleNrForCreation = this.selectedMarble.marbleNr;
 
           this.creationBondLine.color = Colors.creationHighlight;
-          if (this.startMarbleNrForCreation !== this.endMarbleNrForCreation) {
-            this.getMarbleByNumber(this.startMarbleNrForCreation).ringColor = Colors.creationHighlight;
-            this.getMarbleByNumber(this.endMarbleNrForCreation).ringColor = Colors.creationHighlight;
+          if (this._startMarbleNrForCreation !== this._endMarbleNrForCreation) {
+            this.getMarbleBy(this._startMarbleNrForCreation).ringColor = Colors.creationHighlight;
+            this.getMarbleBy(this._endMarbleNrForCreation).ringColor = Colors.creationHighlight;
           }
           this.isBondLineDone = true;
         } else {
           this.creationBondLine.pointEnd = mouse.point;
 
           this.creationBondLine.color = Colors.creation;
-          this.getMarbleByNumber(this.startMarbleNrForCreation).ringColor = Colors.creation;
-          if (this.startMarbleNrForCreation !== this.endMarbleNrForCreation) {
-            this.getMarbleByNumber(this.endMarbleNrForCreation).ringColor = Colors.line;
+          this.getMarbleBy(this._startMarbleNrForCreation).ringColor = Colors.creation;
+          if (this._startMarbleNrForCreation !== this._endMarbleNrForCreation) {
+            this.getMarbleBy(this._endMarbleNrForCreation).ringColor = Colors.line;
           }
           this.isBondLineDone = false;
         }
@@ -62,20 +61,20 @@ export class BondCreator {
       if (this.isBondLineDone && !this.creationBondLine.isSamePoints()) {
         this.isBondLineDone = false;
 
-        const forwardBondToRemove = this.getBondBy(this.startMarbleNrForCreation, this.endMarbleNrForCreation);
-        const backwardBondToRemove = this.getBondBy(this.endMarbleNrForCreation, this.startMarbleNrForCreation);
+        const forwardBondToRemove = this.getBondBy(this._startMarbleNrForCreation, this._endMarbleNrForCreation);
+        const backwardBondToRemove = this.getBondBy(this._endMarbleNrForCreation, this._startMarbleNrForCreation);
 
         if (forwardBondToRemove != null || backwardBondToRemove != null) {
-          this.removeBond(this.startMarbleNrForCreation, this.endMarbleNrForCreation);
-          this.removeBond(this.endMarbleNrForCreation, this.startMarbleNrForCreation);
+          this.removeBond(this._startMarbleNrForCreation, this._endMarbleNrForCreation);
+          this.removeBond(this._endMarbleNrForCreation, this._startMarbleNrForCreation);
           Sound.play(Sounds.remove);
         } else {
-          this.addBond(this.startMarbleNrForCreation, this.endMarbleNrForCreation);
+          this.addBond(this._startMarbleNrForCreation, this._endMarbleNrForCreation);
           Sound.play(Sounds.connect);
         }
       }
-      this.getMarbleByNumber(this.startMarbleNrForCreation).ringColor = Colors.line;
-      this.getMarbleByNumber(this.endMarbleNrForCreation).ringColor = Colors.line;
+      this.getMarbleBy(this._startMarbleNrForCreation).ringColor = Colors.line;
+      this.getMarbleBy(this._endMarbleNrForCreation).ringColor = Colors.line;
       this.creationBondLine = null;
       this.highlight();
       this.checkWinState();
@@ -93,7 +92,7 @@ export class BondCreator {
     }
 
     // point in max number circle
-    if (this.getMarbleByNumber(selectedMarbleMaxNr)?.pointInMarble(point)) {
+    if (this.getMarbleBy(selectedMarbleMaxNr)?.pointInMarble(point)) {
       let selected = false;
 
       this.selectedMarble = null;
@@ -124,7 +123,6 @@ export class BondCreator {
     this.nrOfBonds = lines.length;
 
     let intersectedBonds = 0;
-    this.intersected = false;
     for (let outerIndex = 0; outerIndex < lines.length; outerIndex++) {
       lines[outerIndex].setUnIntersect();
 
@@ -132,7 +130,6 @@ export class BondCreator {
         if (lines[outerIndex].intersects(lines[innerIndex])) {
           lines[outerIndex].setIntersect();
           intersectedBonds++;
-          this.intersected = true;
         }
       }
     }
@@ -166,7 +163,7 @@ export class BondCreator {
     firstMarble.removeBond(lastMarble);
   }
 
-  getMarbleByNumber(marbleNr: number): Marble {
+  getMarbleBy(marbleNr: number): Marble {
     return this.collection.find(m => m.marbleNr === marbleNr);
   }
 

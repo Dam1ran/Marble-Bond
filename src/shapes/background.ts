@@ -5,12 +5,8 @@ export class Background {
   }
 
   draw(): void {
-    const grd = this.ctx.createLinearGradient(
-      this.ctx.canvas.width / 2,
-      0,
-      this.ctx.canvas.width / 2,
-      this.ctx.canvas.height
-    );
+    const midWidth = this.ctx.canvas.width / 2;
+    const grd = this.ctx.createLinearGradient(midWidth, 0, midWidth, this.ctx.canvas.height);
     grd.addColorStop(0, Colors.backgroundEdge);
     grd.addColorStop(0.5, Colors.backgroundCenter);
     grd.addColorStop(1, Colors.backgroundEdge);

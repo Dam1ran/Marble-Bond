@@ -7,17 +7,13 @@ import { Marble } from '../shapes/marble';
 export class StageManager {
 
   public ctx: CanvasRenderingContext2D;
-  stageLoader = new StageLoader();
+  private _stageLoader = new StageLoader();
 
   marblesContainer: MarbleContainer;
 
-
-  load(stageNumber: number): void {
-    const marbleData = this.stageLoader.load(stageNumber);
-    this.loadData(marbleData);
-    this.marblesContainer.highlight();
-    this.marblesContainer.checkWinState();
-    this.marblesContainer.highlight();
+  loadStage(stageNumber: number): void {
+    const marbleData = this._stageLoader.getStageBy(stageNumber);
+    this.writeToMarbleContainer(marbleData);
   }
 
   public save(marblesContainer: MarbleContainer, fileName: string): void {
@@ -62,13 +58,14 @@ export class StageManager {
     document.body.appendChild(elem);
     elem.click();
     document.body.removeChild(elem);
+
   }
 
   private getMarbleByPosition(position: Point): Marble {
     return this.marblesContainer.collection.find(m => m.position === position);
   }
 
-  loadData(marbleData: MarbleData[]): void {
+  writeToMarbleContainer(marbleData: MarbleData[]): void {
     this.marblesContainer.collection = [];
     this.marblesContainer.ordinalMarbleNr = 0;
     this.marblesContainer.prevNrOfIntersectedBonds = 9999;
@@ -82,6 +79,13 @@ export class StageManager {
         this.marblesContainer.addBond(md.nr,nr);
       });
     });
+    this.updateContent();
+  }
+
+  updateContent(): void {
+    this.marblesContainer.highlight();
+    this.marblesContainer.checkWinState();
+    this.marblesContainer.highlight();
   }
 
 }

@@ -126,12 +126,15 @@ button {
     #generators {
       margin-top: 10px;
     }
-    .sizes {
-      // text-align: center;
-    }
     .stages {
       p {
         font-weight: 700;
+        color: rgb(50, 100, 150);
+      }
+    }
+    .create-wrapper {
+      p {
+        font-weight: 700;     
         color: rgb(50, 100, 150);
       }
     }

@@ -3,7 +3,6 @@ import { Colors } from '../helpers/colors';
 import { Variables } from '../helpers/variables';
 
 export class Line {
-  isIntersected = false;
 
   constructor(
     private ctx: CanvasRenderingContext2D,
@@ -42,6 +41,7 @@ export class Line {
     if (det === 0) {
       return false;
     } else {
+
       lambda = (
         (this.pointEnd.yPos - this.pointStart.yPos) * (this.pointEnd.xPos - line.pointStart.xPos) +
         (this.pointStart.xPos - this.pointEnd.xPos) * (this.pointEnd.yPos - line.pointStart.yPos)
@@ -58,12 +58,10 @@ export class Line {
 
   setIntersect(): void {
     this.color = Colors.lineIntersected;
-    this.isIntersected = true;
   }
 
   setUnIntersect(): void {
     this.color = Colors.line;
-    this.isIntersected = false;
   }
 
   isSamePoints(): boolean {

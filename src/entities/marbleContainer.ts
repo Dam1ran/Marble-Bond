@@ -1,23 +1,19 @@
 import { Marble } from '../shapes/marble';
 import { Point } from '../shapes/point';
-import { Observable, Subscriber } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { Mouse } from '../helpers/mouse';
 import { BondCreator } from './bondCreator';
 import { Sounds } from '../helpers/sounds';
 import { Sound } from '../helpers/sound';
 
 export class MarbleContainer extends BondCreator{
-  modified$: Observable<boolean>;
-  private hasMarblesObserver = new Subscriber<boolean>();
+  modified$ = new BehaviorSubject(false);
 
   ordinalMarbleNr = 0;
   isHighlight = false;
 
   constructor(ctx: CanvasRenderingContext2D){
     super(ctx);
-    this.modified$ = new Observable<boolean>((observer) => {
-      this.hasMarblesObserver = observer;
-    });
   }
 
   addMarble(position: Point): void {
@@ -28,7 +24,7 @@ export class MarbleContainer extends BondCreator{
     this.highlight();
     this.checkWinState();
     this.highlight();
-    this.hasMarblesObserver.next(this.collection.length > 0);
+    this.modified$.next(this.collection.length > 0);
   }
 
   removeMarble(position: Point): void {
@@ -44,7 +40,7 @@ export class MarbleContainer extends BondCreator{
       }
     }
     const isNotEmpty = this.collection.length > 0;
-    this.hasMarblesObserver.next(isNotEmpty);
+    this.modified$.next(isNotEmpty);
     if (!isNotEmpty) {
       this.ordinalMarbleNr = 0;
     }

@@ -1,5 +1,5 @@
-import { Observable, Subscriber } from 'rxjs';
-import { shareReplay, throttleTime } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import { throttleTime } from 'rxjs/operators';
 import { Background } from './shapes/background';
 import { Mouse } from './helpers/mouse';
 import { MarbleContainer } from './entities/marbleContainer';
@@ -10,16 +10,14 @@ import { Sound } from './helpers/sound';
 
 export default class MainEntry extends StageManager {
   canvas: HTMLCanvasElement | null;
+  bg: Background;
 
   mouse = new Mouse();
 
-  bg: Background;
-
-  isDrawingObjects = false;
-
-  animationObserver = new Subscriber<void>();
-  animate$: Observable<void>;
   listeners: Listeners;
+
+  private _isDrawingObjects = false;
+  private _animation$ = new Subject();
 
   constructor(public width = 600, public height = 700) {
     super();
@@ -40,52 +38,45 @@ export default class MainEntry extends StageManager {
         this.listeners = new Listeners(this);
       }
     }
+
   }
 
-  initListeners(): void {
+  private initListeners(): void {
 
-    this.animate$ = new Observable<void>((observer) => {
-      this.animationObserver = observer;
-    }).pipe(shareReplay());
-
-    this.animate$.pipe(throttleTime(15)).subscribe(() => {
+    this._animation$.pipe(throttleTime(15)).subscribe(() => {
       this.setBackground();
-      if (this.isDrawingObjects) {
+      if (this._isDrawingObjects) {
         this.drawObjects();
       } else {
         this.marblesContainer.isHighlight = false;
       }
     });
 
-    this.animate$.pipe(throttleTime(100)).subscribe(() => {
+    this._animation$.pipe(throttleTime(100)).subscribe(() => {
       this.updatePageInfo();
     });
 
-    this.marblesContainer.modified$.subscribe((val) => {
-      this.isDrawingObjects = val;
+    this._animation$.pipe(throttleTime(80)).subscribe(() => {
+      if (this.marblesContainer.isHighlight) {
+        document.body.style.cursor = 'pointer';
+        Sound.playOnce(Sounds.pick);
+        Sound.reset(Sounds.drop);
+      } else {
+        document.body.style.cursor = 'default';
+        Sound.reset(Sounds.pick);
+        Sound.playOnce(Sounds.drop);
+      }
     });
 
-    this.animate$.pipe(throttleTime(80))
-    .subscribe(
-      () => {
-        if (this.marblesContainer.isHighlight) {
-          document.body.style.cursor = 'pointer';
-          Sound.playOnce(Sounds.pick);
-          Sound.reset(Sounds.drop);
-        } else {
-          document.body.style.cursor = 'default';
-          Sound.reset(Sounds.pick);
-          Sound.playOnce(Sounds.drop);
-        }
-      }
-    );
+    this.marblesContainer.modified$.subscribe((val) => {
+      this._isDrawingObjects = val;
+    });
 
   }
 
-  updatePageInfo() {
+  private updatePageInfo() {
 
-    if (this.isDrawingObjects) {
-
+    if (this._isDrawingObjects) {
       const nrOfMarbles = this.marblesContainer.nrOfMarbles;
       const nrOfBonds = this.marblesContainer.nrOfBonds;
       const nrOfInterBonds = this.marblesContainer.nrOfIntersectedBonds;
@@ -104,19 +95,20 @@ export default class MainEntry extends StageManager {
     } else if (this.listeners != null) {
       this.listeners.marbleNrDisplayElement.innerText = '0';
     }
+
   }
 
-  setBackground(): void {
+  private setBackground(): void {
     this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
     this.bg.draw();
   }
 
-  initAnimation(): void {
-    this.animationObserver.next();
+  private initAnimation(): void {
+    this._animation$.next();
     requestAnimationFrame(() => this.initAnimation());
   }
 
-  drawObjects(): void {
+  private drawObjects(): void {
     this.marblesContainer.draw();
     this.marblesContainer.update(this.mouse);
   }

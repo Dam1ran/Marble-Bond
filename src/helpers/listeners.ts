@@ -6,7 +6,8 @@ import { Sounds } from './sounds';
 import { Sound } from './sound';
 export class Listeners {
 
-  generator: Generator;
+  private _generator: Generator;
+
   marbleNrDisplayElement = document.querySelector('.marbleNrDisplay') as HTMLDivElement;
   bondNrDisplayElement = document.querySelector('.bondNrDisplay') as HTMLDivElement;
   bondIntersectedNrDisplayElement = document.querySelector('.bondIntersectedNrDisplay') as HTMLDivElement;
@@ -24,36 +25,16 @@ export class Listeners {
 
 
   constructor(private main: MainEntry){
-    this.initHtmlListeners();
+    this.initMouseListeners();
     this.initFileLoader();
     this.initKeys();
     this.initStageButtons();
     this.initGenerationButtons();
-    this.generator = new Generator(main.width, main.height);
     this.initSizeButtons();
+    this._generator = new Generator(main.width, main.height);
   }
 
-  private initHtmlListeners(): void {
-    const saveBtn = document.getElementById('saveBtn') as HTMLButtonElement;
-    saveBtn.onclick = () => {
-      if (this.main.marblesContainer.collection.length > 0) {
-        const saveFileNameInput = document.getElementById('saveFileName') as HTMLInputElement;
-        const inputValue = saveFileNameInput.value.trim();
-        if (inputValue != null && inputValue !== '') {
-          saveFileNameInput.value = '';
-          this.main.save(this.main.marblesContainer, inputValue);
-        }
-      }
-    };
-
-    const clearBtn = document.getElementById('clearBtn') as HTMLButtonElement;
-    clearBtn.onclick = () => {
-      this.main.marblesContainer.collection = [];
-      this.main.marblesContainer.ordinalMarbleNr = 0;
-      this.main.marblesContainer.highlight();
-      this.main.listeners.impossibleTextElement.style.display = 'none';
-      Sound.play(Sounds.clear);
-    };
+  private initMouseListeners(): void {
 
     window.addEventListener('mousemove', (event: MouseEvent) => {
       const mouseX = event.clientX - this.main.ctx.canvas.offsetLeft;
@@ -62,10 +43,10 @@ export class Listeners {
       if (mouseX >= 0 && mouseX <= this.main.width) {
         this.main.mouse.point.xPos = mouseX;
       }
-
       if (mouseY >= 0 && mouseY <= this.main.height) {
         this.main.mouse.point.yPos = mouseY;
       }
+
     });
 
     window.addEventListener('mousedown', (event: MouseEvent) => {
@@ -91,26 +72,39 @@ export class Listeners {
   }
 
   private initFileLoader(): void {
+
     const fileInput = document.getElementById('fileInput') as HTMLInputElement;
     fileInput.value = '';
     fileInput.onchange = (e?: any) => {
       const file: File = e.target.files[0];
       if (file.name.endsWith('.json')) {
-        file.text().then(
-          text => {
-            try {
-              const marbleData = JSON.parse(text) as MarbleData[];
-              fileInput.value = '';
-              this.main.loadData(marbleData);
-              this.updateContent();
-            } catch (e) {
-              console.warn('Load File Error!');
-              console.warn(e);
-            }
+
+        file.text().then(text => {
+          try {
+            const marbleData = JSON.parse(text) as MarbleData[];
+            fileInput.value = '';
+            this.main.writeToMarbleContainer(marbleData);
+          } catch (e) {
+            console.warn('Load File Error!');
+            console.warn(e);
           }
-        );
+        });
+
       }
     };
+
+    const saveBtn = document.getElementById('saveBtn') as HTMLButtonElement;
+    saveBtn.onclick = () => {
+      if (this.main.marblesContainer.collection.length > 0) {
+        const saveFileNameInput = document.getElementById('saveFileName') as HTMLInputElement;
+        const inputValue = saveFileNameInput.value.trim();
+        if (inputValue != null && inputValue !== '') {
+          saveFileNameInput.value = '';
+          this.main.save(this.main.marblesContainer, inputValue);
+        }
+      }
+    };
+
   }
 
   private initKeys(): void {
@@ -159,15 +153,12 @@ export class Listeners {
       if (event.key !== undefined && event.key === 'k') {
         handled = true;
 
-        this.main.load(1);
-        // this.main.marblesContainer.highlight();
         console.log('K');
       }
 
       if (event.key !== undefined && event.key === 's') {
         handled = true;
 
-        // this.main.save(this.main.marblesContainer,'save');
         console.log('S');
       }
 
@@ -181,48 +172,53 @@ export class Listeners {
     const buttons = document.getElementsByClassName('stages')[0].getElementsByTagName('button');
     for(let i = 0; i < buttons.length; i++) {
       buttons.item(i).onclick = (e) => {
-        this.main.load(parseInt((e.target as HTMLButtonElement).innerText, 10));
-        this.updateContent();
+        this.main.loadStage(parseInt((e.target as HTMLButtonElement).innerText, 10));
+        this.main.updateContent();
       };
     }
   }
 
   private initGenerationButtons(): void {
 
+    const clearBtn = document.getElementById('clearBtn') as HTMLButtonElement;
+    clearBtn.onclick = () => {
+      this.main.marblesContainer.collection = [];
+      this.main.marblesContainer.ordinalMarbleNr = 0;
+      this.main.marblesContainer.highlight();
+      this.main.listeners.impossibleTextElement.style.display = 'none';
+      Sound.play(Sounds.clear);
+    };
+
     this.generateEasyBtnElement.onclick = () => {
-      const md = this.generator.generateEasy();
-      this.main.loadData(md);
-      this.updateContent();
-      Sound.play(Sounds.generate);
+      const md = this._generator.generateEasy();
+      this.loadAndUpdate(md);
     };
 
     this.generateMediumBtnElement.onclick = () => {
-      const md = this.generator.generateMedium();
-      this.main.loadData(md);
-      this.updateContent();
-      Sound.play(Sounds.generate);
+      const md = this._generator.generateMedium();
+      this.loadAndUpdate(md);
     };
 
     this.generateHardBtnElement.onclick = () => {
-      const md = this.generator.generateHard();
-      this.main.loadData(md);
-      this.updateContent();
-      Sound.play(Sounds.generate);
+      const md = this._generator.generateHard();
+      this.loadAndUpdate(md);
     };
 
     this.generateExtremeBtnElement.onclick = () => {
-      const md = this.generator.generateExtreme();
-      this.main.loadData(md);
-      this.updateContent();
-      Sound.play(Sounds.generate);
+      const md = this._generator.generateExtreme();
+      this.loadAndUpdate(md);
     };
 
+  }
+
+  private loadAndUpdate(md: MarbleData[]): void {
+    this.main.writeToMarbleContainer(md);
+    Sound.play(Sounds.generate);
   }
 
   private initSizeButtons(): void {
 
     this.decreaseBtnElement.onclick = () => {
-
       Variables.marbleRadius = Variables.marbleRadius > 4 ?
         --Variables.marbleRadius
         : Variables.marbleRadius;
@@ -241,16 +237,13 @@ export class Listeners {
     };
 
     this.resetBtnElement.onclick = () => {
-
       Variables.marbleRadius = 13;
       Variables.ringWidth = 2;
       Variables.lineWidth = 2;
       Variables.fontNrSize = 13;
-
     };
 
     this.increaseBtnElement.onclick = () => {
-
       Variables.marbleRadius = Variables.marbleRadius < Variables.maxMarbleRadius ?
       ++Variables.marbleRadius
       : Variables.marbleRadius;
@@ -268,12 +261,6 @@ export class Listeners {
         : 15;
 
     };
-  }
-
-  private updateContent(): void {
-    this.main.marblesContainer.highlight();
-    this.main.marblesContainer.checkWinState();
-    this.main.marblesContainer.highlight();
   }
 
 }

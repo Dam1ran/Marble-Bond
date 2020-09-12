@@ -3,8 +3,8 @@ import { Point } from '../shapes/point';
 
 export class Generator {
 
-  private clamp = new Point(100,100);
-  private marblesData: Array<MarbleData>;
+  private _clamp = new Point(100,100);
+  private _marblesData: Array<MarbleData>;
 
   constructor(private width: number,private height: number) {
   }
@@ -55,18 +55,18 @@ export class Generator {
 
     for (let i = 0; i < marbleNr - 3; i++) {
 
-      const allTriangles = this.getAllTriangles(this.marblesData);
-      const emptyTriangles = this.getEmptyTriangles(allTriangles, this.marblesData);
-      const biggestTriangle = this.getBiggestAriaTriangle(emptyTriangles, this.marblesData);
+      const allTriangles = this.getAllTriangles(this._marblesData);
+      const emptyTriangles = this.getEmptyTriangles(allTriangles, this._marblesData);
+      const biggestTriangle = this.getBiggestAriaTriangle(emptyTriangles, this._marblesData);
 
-      const first = this.marblesData.find(m => m.nr === biggestTriangle[0]);
-      const second = this.marblesData.find(m => m.nr === biggestTriangle[1]);
-      const third = this.marblesData.find(m => m.nr === biggestTriangle[2]);
+      const first = this._marblesData.find(m => m.nr === biggestTriangle[0]);
+      const second = this._marblesData.find(m => m.nr === biggestTriangle[1]);
+      const third = this._marblesData.find(m => m.nr === biggestTriangle[2]);
 
       const triCenter = this.getTriangleCenter([first,second,third]);
 
-      this.marblesData.push(
-        new MarbleData({...triCenter}, this.marblesData.length ,[first.nr, second.nr, third.nr])
+      this._marblesData.push(
+        new MarbleData({...triCenter}, this._marblesData.length ,[first.nr, second.nr, third.nr])
       );
 
     }
@@ -75,19 +75,19 @@ export class Generator {
 
     for (let i = 0; i < nrOfBondsToDelete; i++) {
       const mi = i % marbleNr;
-      if (this.marblesData[mi].conn.length > 1) {
-        this.marblesData[mi].conn.pop();
+      if (this._marblesData[mi].conn.length > 1) {
+        this._marblesData[mi].conn.pop();
       } else {
-        const mdNr = this.getMarbleNrWithNotEmptyConnLength(this.marblesData);
+        const mdNr = this.getMarbleNrWithNotEmptyConnLength(this._marblesData);
         if (mdNr >= 0) {
-          this.marblesData.find(md => md.nr === mdNr).conn.pop();
+          this._marblesData.find(md => md.nr === mdNr).conn.pop();
         }
       }
     }
 
     this.shuffleMdPos();
 
-    return this.marblesData;
+    return this._marblesData;
 
   }
 
@@ -126,9 +126,9 @@ export class Generator {
   }
 
   private initFirstTriangle() {
-    this.marblesData = new Array<MarbleData>();
+    this._marblesData = new Array<MarbleData>();
 
-    this.marblesData.push(
+    this._marblesData.push(
       new MarbleData(new Point(300, 20), 0, [1]),
       new MarbleData(new Point(20, 680), 1, [2]),
       new MarbleData(new Point(580, 680), 2, [0])
@@ -136,9 +136,9 @@ export class Generator {
   }
 
   private shuffleMdPos(): void {
-    this.marblesData.forEach(m => {
-      m.pos.xPos = this.generateNumberInRange(this.width - this.clamp.xPos, 0 + this.clamp.xPos);
-      m.pos.yPos = this.generateNumberInRange(this.height - this.clamp.yPos, 0 + this.clamp.yPos);
+    this._marblesData.forEach(m => {
+      m.pos.xPos = this.generateNumberInRange(this.width - this._clamp.xPos, 0 + this._clamp.xPos);
+      m.pos.yPos = this.generateNumberInRange(this.height - this._clamp.yPos, 0 + this._clamp.yPos);
     });
   }
 
@@ -221,7 +221,7 @@ export class Generator {
     });
 
     let ar = 0;
-    arias.forEach((a,i) => {
+    arias.forEach((_,i) => {
       if (ar <= arias[i]) {
         ar = arias[i];
       }
@@ -304,7 +304,7 @@ export class Generator {
     return triCenter;
   }
 
-  generateNumberInRange(maxNr: number, minNr: number = 0): number {
+  private generateNumberInRange(maxNr: number, minNr: number = 0): number {
     return Math.floor(Math.random() * (maxNr - minNr + 1) + minNr);
   }
 

@@ -1,24 +1,19 @@
-import { Observable, Subscriber } from 'rxjs';
-import {
-  debounceTime,
-  shareReplay,
-  throttleTime,
-  filter,
-} from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import { debounceTime, throttleTime, filter } from 'rxjs/operators';
 import { Point } from './point';
 import { Bond } from '../entities/bond';
 import { Colors } from '../helpers/colors';
 import { Variables } from '../helpers/variables';
 
 export class Marble {
-  deltaPosition: Point;
-  deltaVector: Point;
-  isPointInMarble = false;
-  selected = false;
-  selectedObserver = new Subscriber<void>();
-  selected$: Observable<void>;
+  private _select$ = new Subject();
+  private _deltaPosition: Point;
+  private _selected = false;
+  private _deltaVector: Point;
+  private _ringSelectedAddWidth = 0;
+
   bonds = new Array<Bond>();
-  ringSelectedAddWidth = 0;
+  isPointInMarble = false;
 
   constructor(
     private ctx: CanvasRenderingContext2D,
@@ -30,45 +25,25 @@ export class Marble {
     this.init();
   }
 
-  init(): void {
-    this.selected$ = new Observable<void>((observer) => {
-      this.selectedObserver = observer;
-    }).pipe(shareReplay());
-    this.selected$.pipe(debounceTime(80)).subscribe(() => {
-      this.unselect();
-    });
-    this.selected$
-      .pipe(
-        throttleTime(500),
-        filter(() => !this.selected)
-      )
-      .subscribe(() => {
-        this.select();
-      });
+  private init(): void {
+    this._select$.pipe(debounceTime(80)).subscribe(() => this.setUnselect());
+    this._select$.pipe(throttleTime(400), filter(() => !this._selected)).subscribe(() => this.setSelect());
   }
 
   draw(): void {
     this.ctx.beginPath();
-    this.ctx.arc(
-      this.position.xPos,
-      this.position.yPos,
-      Variables.marbleRadius,
-      0,
-      2 * Math.PI,
-      false
-    );
+    this.ctx.arc(this.position.xPos, this.position.yPos, Variables.marbleRadius, 0, 2 * Math.PI, false);
     this.ctx.fillStyle = Colors.marble;
     this.ctx.fill();
-    this.ctx.lineWidth = Variables.ringWidth + this.ringSelectedAddWidth;
+    this.ctx.lineWidth = Variables.ringWidth + this._ringSelectedAddWidth;
     const color = ( this.ringColor === Colors.creation ||
                     this.ringColor === Colors.creationHighlight ||
                     this.ringColor === Colors.selectedRing)
-
                   ? this.ringColor : Colors.line;
 
     this.ctx.strokeStyle = color;
     this.ctx.stroke();
-    if (this.selected) {
+    if (this._selected) {
       this.drawSelected();
     }
     if (this.isDrawNr) {
@@ -76,7 +51,7 @@ export class Marble {
     }
   }
 
-  drawNumber(): void {
+  private drawNumber(): void {
     this.ctx.font = `${Variables.fontNrSize}px Arial`;
     this.ctx.fillStyle = Colors.number;
     this.ctx.textAlign = 'center';
@@ -88,13 +63,13 @@ export class Marble {
   }
 
   updatePos(point: Point): void {
-    this.position.xPos = point.xPos - this.deltaVector.xPos;
-    this.position.yPos = point.yPos - this.deltaVector.yPos;
+    this.position.xPos = point.xPos - this._deltaVector.xPos;
+    this.position.yPos = point.yPos - this._deltaVector.yPos;
 
-    this.selectedObserver.next();
+    this._select$.next();
   }
 
-  drawSelected(): void {
+  private drawSelected(): void {
     this.ctx.beginPath();
     this.ctx.arc(
       this.position.xPos,
@@ -109,46 +84,46 @@ export class Marble {
     this.ctx.fill();
   }
 
-  select(): void {
+  private setSelect(): void {
     this.ringColor = Colors.selectedRing;
-    this.ringSelectedAddWidth = 1;
+    this._ringSelectedAddWidth = 1;
 
-    this.selected = true;
+    this._selected = true;
   }
 
-  unselect(): void {
+  private setUnselect(): void {
     this.ringColor = Colors.line;
-    this.ringSelectedAddWidth = 0;
+    this._ringSelectedAddWidth = 0;
 
-    this.selected = false;
+    this._selected = false;
   }
 
   pointInMarble(point: Point): boolean {
-    this.deltaPosition = {
+    this._deltaPosition = {
       xPos: Math.abs(point.xPos - this.position.xPos),
       yPos: Math.abs(point.yPos - this.position.yPos),
     };
-    this.deltaVector = {
+    this._deltaVector = {
       xPos: point.xPos - this.position.xPos,
       yPos: point.yPos - this.position.yPos,
     };
 
-    if (this.deltaPosition.xPos > Variables.marbleRadius) {
+    if (this._deltaPosition.xPos > Variables.marbleRadius) {
       this.isPointInMarble = false;
       return false;
     }
 
-    if (this.deltaPosition.yPos > Variables.marbleRadius) {
+    if (this._deltaPosition.yPos > Variables.marbleRadius) {
       this.isPointInMarble = false;
       return false;
     }
 
-    if (this.deltaPosition.xPos + this.deltaPosition.yPos <= Variables.marbleRadius) {
+    if (this._deltaPosition.xPos + this._deltaPosition.yPos <= Variables.marbleRadius) {
       this.isPointInMarble = true;
       return true;
     }
 
-    if (Math.pow(this.deltaPosition.xPos, 2) + Math.pow(this.deltaPosition.yPos, 2) <= Math.pow(Variables.marbleRadius, 2)) {
+    if (Math.pow(this._deltaPosition.xPos, 2) + Math.pow(this._deltaPosition.yPos, 2) <= Math.pow(Variables.marbleRadius, 2)) {
       this.isPointInMarble = true;
       return true;
     } else {
