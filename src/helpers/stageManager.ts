@@ -23,7 +23,7 @@ export class StageManager {
 
     marblesContainer.collection.forEach((cMarble) => {
       const conn: number[] = [];
-      cMarble.bonds.forEach((bond)=> {
+      cMarble.bonds.forEach((bond) => {
         const marble = this.getMarbleByPosition(bond.pointEnd);
         if (marble != null) {
           conn.push(marble.marbleNr);
@@ -76,7 +76,7 @@ export class StageManager {
 
     marbleData.forEach(md => {
       md.conn.forEach((nr) => {
-        this.marblesContainer.addBond(md.nr,nr);
+        this.marblesContainer.addBond(md.nr, nr);
       });
     });
     this.updateContent();

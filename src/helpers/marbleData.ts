@@ -1,7 +1,7 @@
 import { Point } from '../shapes/point';
 
 export class MarbleData {
-  constructor(
+  constructor (
     public pos: Point,
     public nr: number,
     public conn: number[]

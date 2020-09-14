@@ -1,4 +1,4 @@
-import { AudioFile } from './sounds';
+import { AudioFile } from './sounds-lib';
 
 export class Sound {
 

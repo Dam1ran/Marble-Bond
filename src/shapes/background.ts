@@ -1,7 +1,7 @@
 import { Colors } from '../helpers/colors';
 
 export class Background {
-  constructor(public ctx: CanvasRenderingContext2D) {
+  constructor (public ctx: CanvasRenderingContext2D) {
   }
 
   draw(): void {

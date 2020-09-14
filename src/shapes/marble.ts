@@ -15,7 +15,7 @@ export class Marble {
   bonds = new Array<Bond>();
   isPointInMarble = false;
 
-  constructor(
+  constructor (
     private ctx: CanvasRenderingContext2D,
     public position: Point,
     public marbleNr: number,
@@ -31,6 +31,7 @@ export class Marble {
   }
 
   draw(): void {
+    this.ctx.globalAlpha = 0.5;
     this.ctx.beginPath();
     this.ctx.arc(this.position.xPos, this.position.yPos, Variables.marbleRadius, 0, 2 * Math.PI, false);
     this.ctx.fillStyle = Colors.marble;
@@ -49,6 +50,8 @@ export class Marble {
     if (this.isDrawNr) {
       this.drawNumber();
     }
+    this.ctx.globalAlpha = 1;
+
   }
 
   private drawNumber(): void {
@@ -145,7 +148,7 @@ export class Marble {
     const bondToDelete = this.getBondBy(marble);
     const bondIndexToDelete = this.bonds.indexOf(bondToDelete);
     if (bondIndexToDelete >= 0) {
-      this.bonds.splice(bondIndexToDelete,1);
+      this.bonds.splice(bondIndexToDelete, 1);
     }
   }
 

@@ -4,8 +4,9 @@ import { Line } from '../shapes/line';
 import { Point } from '../shapes/point';
 import { Bond } from './bond';
 import { Colors } from '../helpers/colors';
-import { Sounds } from '../helpers/sounds';
+import { SoundsLib } from '../helpers/sounds-lib';
 import { Sound } from '../helpers/sound';
+import { BehaviorSubject } from 'rxjs';
 
 export class BondCreator {
 
@@ -22,16 +23,18 @@ export class BondCreator {
   nrOfIntersectedBonds = 0;
   prevNrOfIntersectedBonds = 9999;
 
-  constructor(protected ctx: CanvasRenderingContext2D) {}
+  winState$ = new BehaviorSubject(false);
 
-  createBond(mouse: Mouse) {
+  constructor (protected ctx: CanvasRenderingContext2D) {}
+
+  createBond(mouse: Mouse): void {
     if (mouse.middleClicked) {
       if (!mouse.middleHold && this.selectedMarble != null) {
         mouse.middleHold = true;
         this._startMarbleNrForCreation = this.selectedMarble.marbleNr;
 
         this.selectedMarble.ringColor = Colors.creation;
-        Sound.playOnce(Sounds.draw);
+        Sound.playOnce(SoundsLib.draw);
         this.creationBondLine = new Line(this.ctx, {...this.selectedMarble.position}, mouse.point, Colors.creation);
       } else
       if (mouse.middleHold && this.creationBondLine != null) {
@@ -67,10 +70,10 @@ export class BondCreator {
         if (forwardBondToRemove != null || backwardBondToRemove != null) {
           this.removeBond(this._startMarbleNrForCreation, this._endMarbleNrForCreation);
           this.removeBond(this._endMarbleNrForCreation, this._startMarbleNrForCreation);
-          Sound.play(Sounds.remove);
+          Sound.play(SoundsLib.remove);
         } else {
           this.addBond(this._startMarbleNrForCreation, this._endMarbleNrForCreation);
-          Sound.play(Sounds.connect);
+          Sound.play(SoundsLib.connect);
         }
       }
       this.getMarbleBy(this._startMarbleNrForCreation).ringColor = Colors.line;
@@ -79,7 +82,7 @@ export class BondCreator {
       this.highlight();
       this.checkWinState();
       this.highlight();
-      Sound.reset(Sounds.draw);
+      Sound.reset(SoundsLib.draw);
     }
   }
 
@@ -90,7 +93,6 @@ export class BondCreator {
         if (selectedMarbleMaxNr < marble.marbleNr) {selectedMarbleMaxNr = marble.marbleNr; }
       }
     }
-
     // point in max number circle
     if (this.getMarbleBy(selectedMarbleMaxNr)?.pointInMarble(point)) {
       let selected = false;
@@ -137,7 +139,7 @@ export class BondCreator {
     lines = [];
 
     if (this.prevNrOfIntersectedBonds < this.nrOfIntersectedBonds) {
-      Sound.play(Sounds.intersect);
+      Sound.play(SoundsLib.intersect);
       this.prevNrOfIntersectedBonds = this.nrOfIntersectedBonds;
     } else {
       this.prevNrOfIntersectedBonds = this.nrOfIntersectedBonds;
@@ -183,10 +185,16 @@ export class BondCreator {
       this.collection.length > 3 // && (this.collection.length <= this.numberOfBonds)
     ) {
       Colors.line = Colors.win;
-      Sound.playOnce(Sounds.win);
+      Colors.marble = Colors.marbleWin;
+      Colors.number = Colors.numberWin;
+      this.winState$.next(true);
+      Sound.playOnce(SoundsLib.win);
     } else {
       Colors.line = Colors.default;
-      Sound.reset(Sounds.win);
+      Colors.marble = Colors.marbleDefault;
+      Colors.number = Colors.numberDefault;
+      this.winState$.next(false);
+      Sound.reset(SoundsLib.win);
     }
   }
 

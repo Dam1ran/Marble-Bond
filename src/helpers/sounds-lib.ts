@@ -1,6 +1,6 @@
 export type AudioFile = { sound: HTMLAudioElement, played: boolean };
 
-export class Sounds {
+export class SoundsLib {
 
   static win: AudioFile;
   static generate: AudioFile;
@@ -13,6 +13,7 @@ export class Sounds {
   static connect: AudioFile;
   static delete: AudioFile;
   static intersect: AudioFile;
+  static stageClick: AudioFile;
 
   public static init(): void {
     this.win = { sound: new Audio('audio/win.mp3'), played: false };
@@ -26,6 +27,7 @@ export class Sounds {
     this.connect = { sound: new Audio('audio/connect.mp3'), played: false };
     this.delete = { sound: new Audio('audio/delete.mp3'), played: false };
     this.intersect = { sound: new Audio('audio/intersect.mp3'), played: false };
+    this.stageClick = { sound: new Audio('audio/stageClick.mp3'), played: false };
   }
 
 }

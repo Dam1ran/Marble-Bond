@@ -1,6 +1,6 @@
 import './index.scss';
 import MainEntry from './main';
-import { Sounds } from './helpers/sounds';
+import { SoundsLib } from './helpers/sounds-lib';
 
 // declare global {
 //   interface Window {
@@ -11,7 +11,7 @@ import { Sounds } from './helpers/sounds';
 document.getElementsByTagName('body')[0].style.backgroundColor = '#fafafa';
 
 const _main = new MainEntry();
-Sounds.init();
+SoundsLib.init();
 
 _main.start();
 

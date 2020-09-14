@@ -1,12 +1,13 @@
 import MainEntry from '../main';
-import { MarbleData } from './marbleData';
-import { Generator } from './generator';
-import { Variables } from './variables';
-import { Sounds } from './sounds';
+import { SoundsLib } from './sounds-lib';
 import { Sound } from './sound';
-export class Listeners {
+import { Handlers } from './handlers';
+import { delay, filter } from 'rxjs/operators';
 
-  private _generator: Generator;
+export class Listeners extends Handlers {
+
+  saveBtnElement = document.getElementById('saveBtn') as HTMLButtonElement;
+  fileInputElement = document.getElementById('fileInput') as HTMLInputElement;
 
   marbleNrDisplayElement = document.querySelector('.marbleNrDisplay') as HTMLDivElement;
   bondNrDisplayElement = document.querySelector('.bondNrDisplay') as HTMLDivElement;
@@ -17,94 +18,68 @@ export class Listeners {
   generateMediumBtnElement = document.getElementById('generateMedium') as HTMLButtonElement;
   generateHardBtnElement = document.getElementById('generateHard') as HTMLButtonElement;
   generateExtremeBtnElement = document.getElementById('generateExtreme') as HTMLButtonElement;
+  clearBtnElement = document.getElementById('clearBtn') as HTMLButtonElement;
 
   decreaseBtnElement = document.getElementById('decrease') as HTMLButtonElement;
   resetBtnElement = document.getElementById('reset') as HTMLButtonElement;
   increaseBtnElement = document.getElementById('increase') as HTMLButtonElement;
 
+  // stageButtonElements = document.getElementsByClassName('stages')[0].getElementsByTagName('button');
+  stagesDivElement = document.getElementById('stages');
 
+  addMarbleButtonElement = document.getElementById('addMarble') as HTMLButtonElement;
+  removeMarbleButtonElement = document.getElementById('removeMarble') as HTMLButtonElement;
 
-  constructor(private main: MainEntry){
+  constructor (_main: MainEntry){
+    super(_main);
+    this.initAllListeners();
+    this.initWinListener();
+  }
+
+  private initAllListeners(): void {
     this.initMouseListeners();
     this.initFileLoader();
     this.initKeys();
     this.initStageButtons();
     this.initGenerationButtons();
     this.initSizeButtons();
-    this._generator = new Generator(main.width, main.height);
+    this.initCreationButtons();
   }
 
+
+  private disableAllListeners(): void {
+    this.disableMouseListeners();
+    this.disableFileLoader();
+    // this.initKeys();
+    this.disableStageButtons();
+    this.disableGenerationButtons();
+    this.disableSizeButtons();
+    this.disableCreationButtons();
+  }
+
+
   private initMouseListeners(): void {
-
-    window.addEventListener('mousemove', (event: MouseEvent) => {
-      const mouseX = event.clientX - this.main.ctx.canvas.offsetLeft;
-      const mouseY = event.clientY - this.main.ctx.canvas.offsetTop;
-
-      if (mouseX >= 0 && mouseX <= this.main.width) {
-        this.main.mouse.point.xPos = mouseX;
-      }
-      if (mouseY >= 0 && mouseY <= this.main.height) {
-        this.main.mouse.point.yPos = mouseY;
-      }
-
-    });
-
-    window.addEventListener('mousedown', (event: MouseEvent) => {
-      if (event.button === 0) {
-        this.main.mouse.clicked = true;
-        this.main.marblesContainer.setMaxSelectedMarble(this.main.mouse.point);
-      }
-      if (event.button === 1) {
-        this.main.mouse.middleClicked = true;
-        this.main.marblesContainer.setMaxSelectedMarble(this.main.mouse.point);
-      }
-    });
-
-    window.addEventListener('mouseup', (event: MouseEvent) => {
-      if (event.button === 0) {
-        this.main.mouse.clicked = false;
-      }
-      if (event.button === 1) {
-        this.main.mouse.middleClicked = false;
-        this.main.mouse.middleHold = false;
-      }
-    });
+    window.addEventListener('mousemove', this.mouseMoveHandler);
+    window.addEventListener('mousedown', this.mouseDownHandler);
+    window.addEventListener('mouseup', this.mouseUpHandler);
+  }
+  private disableMouseListeners(): void {
+    window.removeEventListener('mousemove', this.mouseMoveHandler);
+    window.removeEventListener('mousedown', this.mouseDownHandler);
+    window.removeEventListener('mouseup', this.mouseUpHandler);
   }
 
   private initFileLoader(): void {
+    this.fileInputElement.value = '';
+    this.fileInputElement.onchange = this.fileInputChangeHandler;
 
-    const fileInput = document.getElementById('fileInput') as HTMLInputElement;
-    fileInput.value = '';
-    fileInput.onchange = (e?: any) => {
-      const file: File = e.target.files[0];
-      if (file.name.endsWith('.json')) {
+    this.saveBtnElement.onclick = this.saveBtnHandler;
+  }
+  private disableFileLoader(): void {
+    this.fileInputElement.value = '';
+    this.fileInputElement.onchange = null;
 
-        file.text().then(text => {
-          try {
-            const marbleData = JSON.parse(text) as MarbleData[];
-            fileInput.value = '';
-            this.main.writeToMarbleContainer(marbleData);
-          } catch (e) {
-            console.warn('Load File Error!');
-            console.warn(e);
-          }
-        });
-
-      }
-    };
-
-    const saveBtn = document.getElementById('saveBtn') as HTMLButtonElement;
-    saveBtn.onclick = () => {
-      if (this.main.marblesContainer.collection.length > 0) {
-        const saveFileNameInput = document.getElementById('saveFileName') as HTMLInputElement;
-        const inputValue = saveFileNameInput.value.trim();
-        if (inputValue != null && inputValue !== '') {
-          saveFileNameInput.value = '';
-          this.main.save(this.main.marblesContainer, inputValue);
-        }
-      }
-    };
-
+    this.saveBtnElement.onclick = null;
   }
 
   private initKeys(): void {
@@ -119,7 +94,7 @@ export class Listeners {
 
 
         this.main.marblesContainer.addMarble(this.main.mouse.point);
-        Sound.play(Sounds.add);
+        Sound.play(SoundsLib.add);
         console.log('A');
       }
 
@@ -132,7 +107,7 @@ export class Listeners {
 
       if (event.key !== undefined && event.key === 'b') {
         handled = true;
-
+        // this.main.marblesContainer.collection[0].position.xPos = 100;
         console.log('B');
       }
 
@@ -168,99 +143,79 @@ export class Listeners {
     }, true);
   }
 
+
   private initStageButtons(): void {
-    const buttons = document.getElementsByClassName('stages')[0].getElementsByTagName('button');
-    for(let i = 0; i < buttons.length; i++) {
-      buttons.item(i).onclick = (e) => {
-        this.main.loadStage(parseInt((e.target as HTMLButtonElement).innerText, 10));
-        this.main.updateContent();
-      };
-    }
+    this.stagesDivElement.addEventListener('click', this.stageBtnOnClickHandler);
   }
+  private disableStageButtons(): void {
+    this.stagesDivElement.removeEventListener('click', this.stageBtnOnClickHandler);
+  }
+
 
   private initGenerationButtons(): void {
-
-    const clearBtn = document.getElementById('clearBtn') as HTMLButtonElement;
-    clearBtn.onclick = () => {
-      this.main.marblesContainer.collection = [];
-      this.main.marblesContainer.ordinalMarbleNr = 0;
-      this.main.marblesContainer.highlight();
-      this.main.listeners.impossibleTextElement.style.display = 'none';
-      Sound.play(Sounds.clear);
-    };
-
-    this.generateEasyBtnElement.onclick = () => {
-      const md = this._generator.generateEasy();
-      this.loadAndUpdate(md);
-    };
-
-    this.generateMediumBtnElement.onclick = () => {
-      const md = this._generator.generateMedium();
-      this.loadAndUpdate(md);
-    };
-
-    this.generateHardBtnElement.onclick = () => {
-      const md = this._generator.generateHard();
-      this.loadAndUpdate(md);
-    };
-
-    this.generateExtremeBtnElement.onclick = () => {
-      const md = this._generator.generateExtreme();
-      this.loadAndUpdate(md);
-    };
-
+    this.clearBtnElement.onclick = this.clearBtnClickHandler;
+    this.generateEasyBtnElement.onclick = this.generateEasyBtnHandler;
+    this.generateMediumBtnElement.onclick = this.generateMediumBtnHandler;
+    this.generateHardBtnElement.onclick = this.generateHardBtnHandler;
+    this.generateExtremeBtnElement.onclick = this.generateExtremeBtnHandler;
+  }
+  private disableGenerationButtons(): void {
+    this.clearBtnElement.onclick = null;
+    this.generateEasyBtnElement.onclick = null;
+    this.generateMediumBtnElement.onclick = null;
+    this.generateHardBtnElement.onclick = null;
+    this.generateExtremeBtnElement.onclick = null;
   }
 
-  private loadAndUpdate(md: MarbleData[]): void {
-    this.main.writeToMarbleContainer(md);
-    Sound.play(Sounds.generate);
-  }
 
   private initSizeButtons(): void {
+    this.decreaseBtnElement.onclick = this.main.marblesContainer.decreaseSizes;
+    this.resetBtnElement.onclick = this.main.marblesContainer.resetSizes;
+    this.increaseBtnElement.onclick = this.main.marblesContainer.increaseSizes;
+  }
+  private disableSizeButtons(): void {
+    this.decreaseBtnElement.onclick = null;
+    this.resetBtnElement.onclick = null;
+    this.increaseBtnElement.onclick = null;
+  }
 
-    this.decreaseBtnElement.onclick = () => {
-      Variables.marbleRadius = Variables.marbleRadius > 4 ?
-        --Variables.marbleRadius
-        : Variables.marbleRadius;
 
-      Variables.ringWidth = Variables.ringWidth > 1 ?
-        --Variables.ringWidth
-        : Variables.ringWidth;
+  private initCreationButtons(): void {
+    this.addMarbleButtonElement.onclick = this.addMarbleButtonHandler;
+    this.removeMarbleButtonElement.onclick = this.removeMarbleButtonHandler;
+  }
+  private disableCreationButtons(): void {
+    this.addMarbleButtonElement.onclick = null;
+    this.removeMarbleButtonElement.onclick = null;
 
-      Variables.lineWidth = (Variables.lineWidth > 1 && (Variables.marbleRadius < 5 || Variables.marbleRadius > 12)) ?
-        --Variables.lineWidth
-        : Variables.lineWidth;
+  }
 
-      Variables.fontNrSize = (Variables.marbleRadius >= 6) && (Variables.marbleRadius <= 13) ?
-        (Variables.marbleRadius + 2)
-        : 15;
-    };
 
-    this.resetBtnElement.onclick = () => {
-      Variables.marbleRadius = 13;
-      Variables.ringWidth = 2;
-      Variables.lineWidth = 2;
-      Variables.fontNrSize = 13;
-    };
+  private initWinListener(): void {
 
-    this.increaseBtnElement.onclick = () => {
-      Variables.marbleRadius = Variables.marbleRadius < Variables.maxMarbleRadius ?
-      ++Variables.marbleRadius
-      : Variables.marbleRadius;
+    let disabled = false;
+    this.main.marblesContainer.winState$.pipe(filter(v => v), delay(30)).subscribe(
+      () => {
+        if (!this.main.mouse.clicked && !this.main.mouse.middleClicked) {
+          if (!disabled) {
+            setTimeout(() => {
+              this.disableAllListeners();
+              this.main.marblesContainer.animateWin();
+              console.log('disabling hard');
+            }, 300);
+            setTimeout(() => {
+              this.initAllListeners();
+              this.clearBtnClickHandler();
+              this.main.updateContent();
+              disabled = false;
+              console.log('enabling hard');
+            }, 5000);
+          }
+          disabled = true;
+        }
+      }
+    );
 
-      Variables.ringWidth = (Variables.ringWidth < Variables.maxRingWidth && Variables.marbleRadius > 12) ?
-        ++Variables.ringWidth
-        : Variables.ringWidth;
-
-      Variables.lineWidth = ((Variables.lineWidth < Variables.maxLineWidth) && ((Variables.marbleRadius > 12) || (Variables.marbleRadius < 6))) ?
-        ++Variables.lineWidth
-        : Variables.lineWidth;
-
-      Variables.fontNrSize = (Variables.marbleRadius >= 6) && (Variables.marbleRadius <= 13) ?
-        (Variables.marbleRadius + 2)
-        : 15;
-
-    };
   }
 
 }

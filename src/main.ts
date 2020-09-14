@@ -5,7 +5,7 @@ import { Mouse } from './helpers/mouse';
 import { MarbleContainer } from './entities/marbleContainer';
 import { StageManager } from './helpers/stageManager';
 import { Listeners } from './helpers/listeners';
-import { Sounds } from './helpers/sounds';
+import { SoundsLib } from './helpers/sounds-lib';
 import { Sound } from './helpers/sound';
 
 export default class MainEntry extends StageManager {
@@ -19,7 +19,7 @@ export default class MainEntry extends StageManager {
   private _isDrawingObjects = false;
   private _animation$ = new Subject();
 
-  constructor(public width = 600, public height = 700) {
+  constructor (public width = 600, public height = 700) {
     super();
   }
 
@@ -59,12 +59,12 @@ export default class MainEntry extends StageManager {
     this._animation$.pipe(throttleTime(80)).subscribe(() => {
       if (this.marblesContainer.isHighlight) {
         document.body.style.cursor = 'pointer';
-        Sound.playOnce(Sounds.pick);
-        Sound.reset(Sounds.drop);
+        Sound.playOnce(SoundsLib.pick);
+        Sound.reset(SoundsLib.drop);
       } else {
         document.body.style.cursor = 'default';
-        Sound.reset(Sounds.pick);
-        Sound.playOnce(Sounds.drop);
+        Sound.reset(SoundsLib.pick);
+        Sound.playOnce(SoundsLib.drop);
       }
     });
 
@@ -74,7 +74,7 @@ export default class MainEntry extends StageManager {
 
   }
 
-  private updatePageInfo() {
+  private updatePageInfo(): void {
 
     if (this._isDrawingObjects) {
       const nrOfMarbles = this.marblesContainer.nrOfMarbles;

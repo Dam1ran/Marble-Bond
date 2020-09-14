@@ -40,7 +40,48 @@
             "timeEnd",
             "trace"
         ],
-        "prefer-for-of": false
+        "prefer-for-of": false,
+        "space-before-function-paren": {
+            "options": {
+                "anonymous": "always",
+                "asyncArrow": "always",
+                "constructor": "always",
+                "method": "never",
+                "named": "always"
+            }
+        },
+        "typedef": [
+            true,
+            "call-signature"
+        ],
+        "typedef-whitespace": {
+            "options": [
+                {
+                    "call-signature": "nospace",
+                    "index-signature": "nospace",
+                    "parameter": "nospace",
+                    "property-declaration": "nospace",
+                    "variable-declaration": "nospace"
+                },
+                {
+                    "call-signature": "onespace",
+                    "index-signature": "onespace",
+                    "parameter": "onespace",
+                    "property-declaration": "onespace",
+                    "variable-declaration": "onespace"
+                }
+            ]
+        },
+        "whitespace": {
+            "options": [
+            "check-branch",
+            "check-decl",
+            "check-operator",
+            "check-separator",
+            "check-type",
+            "check-typecast"
+        ]
+    }
     },
     "rulesDirectory": []
 }

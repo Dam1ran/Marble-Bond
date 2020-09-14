@@ -7,8 +7,12 @@ export class Colors {
   static creationHighlight = 'yellowgreen';
   static selectedRing = '#dde';
   static marble = '#FF543E';
+  static readonly marbleDefault = '#FF543E';
+  static marbleWin = '#6699CC';
   static selectedMarble = '#ff823e';
   static number = 'black';
+  static readonly numberDefault = 'black';
+  static numberWin = 'white';
   static win = 'greenyellow';
   static default = '#3698ff';
 }

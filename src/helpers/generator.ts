@@ -3,15 +3,15 @@ import { Point } from '../shapes/point';
 
 export class Generator {
 
-  private _clamp = new Point(100,100);
+  private _clamp = new Point(100, 100);
   private _marblesData: Array<MarbleData>;
 
-  constructor(private width: number,private height: number) {
+  constructor (private width: number, private height: number) {
   }
 
   generateEasy(): MarbleData[] {
 
-    const marbleNr = this.generateNumberInRange(10,6);
+    const marbleNr = this.generateNumberInRange(10, 6);
     const minNrOfBonds = (marbleNr - 1);
     const maxNrOfBonds = (marbleNr - 2) * 3;
     const nrOfBonds = this.generateNumberInRange(maxNrOfBonds - 2, minNrOfBonds);
@@ -21,7 +21,7 @@ export class Generator {
 
   generateMedium(): MarbleData[] {
 
-    const marbleNr = this.generateNumberInRange(15,10);
+    const marbleNr = this.generateNumberInRange(15, 10);
     const minNrOfBonds = (marbleNr - 1) + 10;
     const maxNrOfBonds = (marbleNr - 2) * 3;
     const nrOfBonds = this.generateNumberInRange(maxNrOfBonds, minNrOfBonds);
@@ -31,7 +31,7 @@ export class Generator {
 
   generateHard(): MarbleData[] {
 
-    const marbleNr = this.generateNumberInRange(20,15);
+    const marbleNr = this.generateNumberInRange(20, 15);
     const minNrOfBonds = (marbleNr - 1) + 15;
     const maxNrOfBonds = (marbleNr - 2) * 3;
     const nrOfBonds = this.generateNumberInRange(maxNrOfBonds, minNrOfBonds);
@@ -41,7 +41,7 @@ export class Generator {
 
   generateExtreme(): MarbleData[] {
 
-    const marbleNr = this.generateNumberInRange(30,25);
+    const marbleNr = this.generateNumberInRange(30, 25);
     const minNrOfBonds = (marbleNr - 1) + 25;
     const maxNrOfBonds = (marbleNr - 2) * 3;
     const nrOfBonds = this.generateNumberInRange(maxNrOfBonds, minNrOfBonds);
@@ -63,10 +63,10 @@ export class Generator {
       const second = this._marblesData.find(m => m.nr === biggestTriangle[1]);
       const third = this._marblesData.find(m => m.nr === biggestTriangle[2]);
 
-      const triCenter = this.getTriangleCenter([first,second,third]);
+      const triCenter = this.getTriangleCenter([first, second, third]);
 
       this._marblesData.push(
-        new MarbleData({...triCenter}, this._marblesData.length ,[first.nr, second.nr, third.nr])
+        new MarbleData({...triCenter}, this._marblesData.length , [first.nr, second.nr, third.nr])
       );
 
     }
@@ -125,7 +125,7 @@ export class Generator {
 
   }
 
-  private initFirstTriangle() {
+  private initFirstTriangle(): void {
     this._marblesData = new Array<MarbleData>();
 
     this._marblesData.push(
@@ -142,9 +142,9 @@ export class Generator {
     });
   }
 
-  private getAllTriangles(mds: MarbleData[]): [number,number,number][] {
+  private getAllTriangles(mds: MarbleData[]): [number, number, number][] {
 
-    const triangles = new Array<[number,number,number]>();
+    const triangles = new Array<[number, number, number]>();
     mds.forEach(md => {
       const conns = this.getConnectedMdFor(md, mds);
       if (conns.length === 0) {
@@ -152,9 +152,9 @@ export class Generator {
       }
 
       conns.forEach((cs) => {
-        const connForNext = this.getConnectedMdFor(cs,conns);
+        const connForNext = this.getConnectedMdFor(cs, conns);
         connForNext.forEach((cn) => {
-          const sorted = [md.nr,cs.nr,cn.nr].sort();
+          const sorted = [md.nr, cs.nr, cn.nr].sort();
           let already = false;
           triangles.forEach(t => {
             if (t[0] === sorted[0] && t[1] === sorted[1] && t[2] === sorted[2]) {
@@ -173,9 +173,9 @@ export class Generator {
 
   }
 
-  private getEmptyTriangles(triangles: [number,number,number][], mds: MarbleData[]): [number,number,number][] {
+  private getEmptyTriangles(triangles: [number, number, number][], mds: MarbleData[]): [number, number, number][] {
 
-    const _triangles = new Array<[number,number,number]>();
+    const _triangles = new Array<[number, number, number]>();
 
     triangles.forEach(t => {
       const first = mds.find(m => m.nr === t[0]);
@@ -200,7 +200,7 @@ export class Generator {
 
   }
 
-  private getBiggestAriaTriangle(triangles: [number,number,number][], mds: MarbleData[]): [number,number,number]{
+  private getBiggestAriaTriangle(triangles: [number, number, number][], mds: MarbleData[]): [number, number, number]{
 
     const arias = new Array<number>();
 
@@ -221,7 +221,7 @@ export class Generator {
     });
 
     let ar = 0;
-    arias.forEach((_,i) => {
+    arias.forEach((_, i) => {
       if (ar <= arias[i]) {
         ar = arias[i];
       }
@@ -237,7 +237,7 @@ export class Generator {
 
     const connectedMarbles = new Array<MarbleData>();
     connections.forEach(md => {
-      if (md.nr !== marbleData.nr && !this.isConnectable(md,marbleData)) {
+      if (md.nr !== marbleData.nr && !this.isConnectable(md, marbleData)) {
         connectedMarbles.push(md);
       }
     });

@@ -4,7 +4,7 @@ import { Variables } from '../helpers/variables';
 
 export class Line {
 
-  constructor(
+  constructor (
     private ctx: CanvasRenderingContext2D,
     public pointStart: Point,
     public pointEnd: Point,

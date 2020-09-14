@@ -5,7 +5,7 @@ export class Bond {
 
   line: Line;
 
-  constructor(
+  constructor (
     private ctx: CanvasRenderingContext2D,
     public pointStart: Point,
     public pointEnd: Point
