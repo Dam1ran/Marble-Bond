@@ -1,6 +1,6 @@
 import { MarbleData } from '../helpers/marbleData';
 
-export class StageLoader {
+export class Stages {
 
   private stages = new Array<Array<MarbleData>>();
 

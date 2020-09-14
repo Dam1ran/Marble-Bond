@@ -1,4 +1,4 @@
-import { StageLoader } from '../stages/stageLoader';
+import { Stages } from '../stages/stages';
 import { MarbleContainer } from '../entities/marbleContainer';
 import { MarbleData } from './marbleData';
 import { Point } from '../shapes/point';
@@ -6,22 +6,22 @@ import { Marble } from '../shapes/marble';
 
 export class StageManager {
 
-  public ctx: CanvasRenderingContext2D;
-  private _stageLoader = new StageLoader();
+  constructor (
+    private _marblesContainer: MarbleContainer,
+    private _stages: Stages
+  ) { }
 
-  marblesContainer: MarbleContainer;
 
   loadStage(stageNumber: number): void {
-    const marbleData = this._stageLoader.getStageBy(stageNumber);
-    this.writeToMarbleContainer(marbleData);
+    const marbleData = this._stages.getStageBy(stageNumber);
+    this._marblesContainer.writeToMarbleContainerAndUpdate(marbleData);
   }
 
-  public save(marblesContainer: MarbleContainer, fileName: string): void {
-    this.marblesContainer = marblesContainer;
+  public save(fileName: string): void {
 
     const marblesData: MarbleData[] = [];
 
-    marblesContainer.collection.forEach((cMarble) => {
+    this._marblesContainer.collection.forEach((cMarble) => {
       const conn: number[] = [];
       cMarble.bonds.forEach((bond) => {
         const marble = this.getMarbleByPosition(bond.pointEnd);
@@ -62,30 +62,7 @@ export class StageManager {
   }
 
   private getMarbleByPosition(position: Point): Marble {
-    return this.marblesContainer.collection.find(m => m.position === position);
-  }
-
-  writeToMarbleContainer(marbleData: MarbleData[]): void {
-    this.marblesContainer.collection = [];
-    this.marblesContainer.ordinalMarbleNr = 0;
-    this.marblesContainer.prevNrOfIntersectedBonds = 9999;
-
-    marbleData.forEach(md => {
-      this.marblesContainer.addMarble(md.pos);
-    });
-
-    marbleData.forEach(md => {
-      md.conn.forEach((nr) => {
-        this.marblesContainer.addBond(md.nr, nr);
-      });
-    });
-    this.updateContent();
-  }
-
-  updateContent(): void {
-    this.marblesContainer.highlight();
-    this.marblesContainer.checkWinState();
-    this.marblesContainer.highlight();
+    return this._marblesContainer.collection.find(m => m.position === position);
   }
 
 }

@@ -2,29 +2,37 @@ import { Marble } from '../shapes/marble';
 import { Point } from '../shapes/point';
 import { BehaviorSubject } from 'rxjs';
 import { Mouse } from '../helpers/mouse';
-import { BondCreator } from './bondCreator';
 import { SoundsLib } from '../helpers/sounds-lib';
 import { Sound } from '../helpers/sound';
 import { Variables } from '../helpers/variables';
+import { MarbleData } from '../helpers/marbleData';
+import { Line } from '../shapes/line';
+import { Colors } from '../helpers/colors';
 
-export class MarbleContainer extends BondCreator {
+export class MarbleContainer {
+
+  public collection = new Array<Marble>();
   modified$ = new BehaviorSubject(false);
+  winState$ = new BehaviorSubject(false);
 
   ordinalMarbleNr = 0;
   isHighlight = false;
 
-  constructor (ctx: CanvasRenderingContext2D){
-    super(ctx);
-  }
+  nrOfMarbles = 0;
+  nrOfBonds = 0;
+  nrOfIntersectedBonds = 0;
+  prevNrOfIntersectedBonds = 9999;
+
+  selectedMarble: Marble;
+
+  constructor (private _ctx: CanvasRenderingContext2D) { }
 
   addMarble(position: Point): void {
     this.collection.push(
-      new Marble(this.ctx, { ...position }, this.ordinalMarbleNr)
+      new Marble(this._ctx, { ...position }, this.ordinalMarbleNr)
     );
     this.ordinalMarbleNr++;
-    this.highlight();
-    this.checkWinState();
-    this.highlight();
+    this.updateContent();
     this.modified$.next(this.collection.length > 0);
   }
 
@@ -45,13 +53,10 @@ export class MarbleContainer extends BondCreator {
     if (!isNotEmpty) {
       this.ordinalMarbleNr = 0;
     }
-    this.highlight();
-    this.checkWinState();
-    this.highlight();
+    this.updateContent();
   }
 
   draw(): void {
-    this.creationBondLine?.draw();
     this.drawBonds();
     this.collection.forEach((marble) => {
       marble.draw();
@@ -59,7 +64,6 @@ export class MarbleContainer extends BondCreator {
   }
 
   update(mouse: Mouse): void {
-    this.createBond(mouse);
 
     if (mouse.clicked && this.selectedMarble != null) {
       this.selectedMarble.updatePos(mouse.point);
@@ -123,7 +127,94 @@ export class MarbleContainer extends BondCreator {
     Variables.fontNrSize = 13;
   }
 
+  writeToMarbleContainerAndUpdate(marbleData: MarbleData[]): void {
+    this.collection = [];
+    this.ordinalMarbleNr = 0;
+    this.prevNrOfIntersectedBonds = 9999;
 
+    marbleData.forEach(md => {
+      this.addMarble(md.pos);
+    });
+
+    marbleData.forEach(md => {
+      md.conn.forEach((nr) => {
+        this.addBond(md.nr, nr);
+      });
+    });
+    this.updateContent();
+    Sound.play(SoundsLib.generate);
+  }
+
+  updateContent(): void {
+    this.highlight();
+    this.checkWinState();
+    this.highlight();
+  }
+
+  highlight(): void {
+    let lines = new Array<Line>();
+    this.collection.forEach((marble) => {
+      marble.bonds.forEach(bond => {
+        lines.push(
+          bond.line
+        );
+      });
+    });
+
+    this.nrOfMarbles = this.collection.length;
+    this.nrOfBonds = lines.length;
+
+    let intersectedBonds = 0;
+    for (let outerIndex = 0; outerIndex < lines.length; outerIndex++) {
+      lines[outerIndex].setUnIntersect();
+
+      for (let innerIndex = 0; innerIndex < lines.length; innerIndex++) {
+        if (lines[outerIndex].intersects(lines[innerIndex])) {
+          lines[outerIndex].setIntersect();
+          intersectedBonds++;
+        }
+      }
+    }
+    this.nrOfIntersectedBonds = intersectedBonds / 2;
+    lines = [];
+
+    if (this.prevNrOfIntersectedBonds < this.nrOfIntersectedBonds) {
+      Sound.play(SoundsLib.intersect);
+      this.prevNrOfIntersectedBonds = this.nrOfIntersectedBonds;
+    } else {
+      this.prevNrOfIntersectedBonds = this.nrOfIntersectedBonds;
+    }
+
+  }
+
+  checkWinState(): void {
+    let isAllDistinctPos = true;
+    this.collection.forEach(mo => {
+      this.collection.forEach(mi => {
+        if (mi.marbleNr !== mo.marbleNr && mo.position.xPos === mi.position.xPos && mo.position.yPos === mi.position.yPos) {
+          isAllDistinctPos = false;
+        }
+      });
+    });
+
+    if (isAllDistinctPos &&
+      this.nrOfIntersectedBonds === 0 &&
+      this.nrOfBonds > 1 &&
+      this.collection.length > 3 // && (this.collection.length <= this.numberOfBonds)
+    ) {
+      Colors.line = Colors.win;
+      Colors.marble = Colors.marbleWin;
+      Colors.number = Colors.numberWin;
+      this.winState$.next(true);
+      Sound.playOnce(SoundsLib.win);
+    } else {
+      Colors.line = Colors.default;
+      Colors.marble = Colors.marbleDefault;
+      Colors.number = Colors.numberDefault;
+      this.winState$.next(false);
+      Sound.reset(SoundsLib.win);
+    }
+  }
 
   animateWin(): void {
 
@@ -160,6 +251,48 @@ export class MarbleContainer extends BondCreator {
 
     });
 
+  }
+
+  addBond(startMarbleNr: number, endMarbleNr: number): void {
+    const firstMarble = this.collection.find(m => m.marbleNr === startMarbleNr);
+    const lastMarble = this.collection.find(m => m.marbleNr === endMarbleNr);
+    firstMarble.addBond(lastMarble);
+  }
+
+  clearBoard(): void {
+    this.collection = [];
+    this.ordinalMarbleNr = 0;
+    this.highlight();
+    Sound.play(SoundsLib.clear);
+  }
+
+  setMaxSelectedMarble(point: Point): void {
+    let selectedMarbleMaxNr = 0;
+    for (const marble of this.collection) {
+      if (marble.pointInMarble(point)) {
+        if (selectedMarbleMaxNr < marble.marbleNr) {selectedMarbleMaxNr = marble.marbleNr; }
+      }
+    }
+    // point in max number circle
+    if (this.getMarbleBy(selectedMarbleMaxNr)?.pointInMarble(point)) {
+      let selected = false;
+
+      this.selectedMarble = null;
+      this.collection.forEach((innerMarble) => {
+        innerMarble.isPointInMarble = selectedMarbleMaxNr === innerMarble.marbleNr;
+        if (innerMarble.isPointInMarble && !selected) {
+          selected = true;
+          this.selectedMarble = innerMarble;
+        }
+      });
+    } else {
+      this.selectedMarble = null;
+    }
+
+  }
+
+  getMarbleBy(marbleNr: number): Marble {
+    return this.collection.find(m => m.marbleNr === marbleNr);
   }
 
 }

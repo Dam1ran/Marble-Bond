@@ -1,63 +1,68 @@
-import MainEntry from '../main';
+import { BondCreator } from '../entities/bondCreator';
+import { MarbleContainer } from '../entities/marbleContainer';
 import { Generator } from './generator';
 import { MarbleData } from './marbleData';
+import { Mouse } from './mouse';
 import { Sound } from './sound';
 import { SoundsLib } from './sounds-lib';
+import { StageManager } from './stageManager';
 
 export class Handlers {
 
-  private _generator: Generator;
+  constructor (
+    private _ctx: CanvasRenderingContext2D,
+    private _mouse: Mouse,
+    private _generator: Generator,
+    private _bondCreator: BondCreator,
+    private _marblesContainer: MarbleContainer,
+    private _stageManager: StageManager
+  ) { }
 
-  constructor (public main: MainEntry) {
-    this._generator = new Generator(main.width, main.height);
+  mouseMoveHandler = (event: MouseEvent) => {
+    const mouseX = event.clientX - this._ctx.canvas.offsetLeft;
+    const mouseY = event.clientY - this._ctx.canvas.offsetTop;
 
+    if (mouseX >= 0 && mouseX <= this._ctx.canvas.width) {
+      this._mouse.point.xPos = mouseX;
+    }
+    if (mouseY >= 0 && mouseY <= this._ctx.canvas.height) {
+      this._mouse.point.yPos = mouseY;
+    }
   }
 
-  protected mouseMoveHandler = (event: MouseEvent) => {
-    const mouseX = event.clientX - this.main.ctx.canvas.offsetLeft;
-    const mouseY = event.clientY - this.main.ctx.canvas.offsetTop;
-
-    if (mouseX >= 0 && mouseX <= this.main.width) {
-      this.main.mouse.point.xPos = mouseX;
-    }
-    if (mouseY >= 0 && mouseY <= this.main.height) {
-      this.main.mouse.point.yPos = mouseY;
-    }
-  }
-
-  protected mouseDownHandler = (event: MouseEvent) => {
+  mouseDownHandler = (event: MouseEvent) => {
     if (event.button === 0) {
-      this.main.mouse.clicked = true;
-      this.main.marblesContainer.setMaxSelectedMarble(this.main.mouse.point);
+      this._mouse.clicked = true;
+      this._marblesContainer.setMaxSelectedMarble(this._mouse.point);
     }
     if (event.button === 1) {
-      this.main.mouse.middleClicked = true;
-      this.main.marblesContainer.setMaxSelectedMarble(this.main.mouse.point);
+      this._mouse.middleClicked = true;
+      this._marblesContainer.setMaxSelectedMarble(this._mouse.point);
     }
   }
 
-  protected mouseUpHandler = (event: MouseEvent) => {
+  mouseUpHandler = (event: MouseEvent) => {
     if (event.button === 0) {
-      this.main.mouse.clicked = false;
+      this._mouse.clicked = false;
     }
     if (event.button === 1) {
-      this.main.mouse.middleClicked = false;
-      this.main.mouse.middleHold = false;
+      this._mouse.middleClicked = false;
+      this._mouse.middleHold = false;
     }
   }
 
-  protected saveBtnHandler = () => {
-    if (this.main.marblesContainer.collection.length > 0) {
+  saveBtnHandler = () => {
+    if (this._marblesContainer.collection.length > 0) {
       const saveFileNameInput = document.getElementById('saveFileName') as HTMLInputElement;
       const inputValue = saveFileNameInput.value.trim();
       if (inputValue != null && inputValue !== '') {
         saveFileNameInput.value = '';
-        this.main.save(this.main.marblesContainer, inputValue);
+        this._stageManager.save(inputValue);
       }
     }
   }
 
-  protected fileInputChangeHandler = (e?: any) => {
+  fileInputChangeHandler = (e?: any) => {
     const file: File = e.target.files[0];
     if (file.name.endsWith('.json')) {
 
@@ -65,7 +70,7 @@ export class Handlers {
         try {
           const marbleData = JSON.parse(text) as MarbleData[];
           e.target.value = '';
-          this.main.writeToMarbleContainer(marbleData);
+          this._marblesContainer.writeToMarbleContainerAndUpdate(marbleData);
         } catch (e) {
           console.warn('Load File Error!');
           console.warn(e);
@@ -75,97 +80,48 @@ export class Handlers {
     }
   }
 
-  protected stageBtnOnClickHandler = (e: MouseEvent) => {
+  stageBtnOnClickHandler = (e: MouseEvent) => {
     const target = e.target;
     if (target instanceof HTMLButtonElement) {
-      this.main.loadStage(parseInt(target.innerText, 10));
+      this._stageManager.loadStage(parseInt(target.innerText, 10));
       Sound.play(SoundsLib.stageClick);
     }
   }
 
-  protected clearBtnClickHandler = () => {
-    this.main.marblesContainer.collection = [];
-    this.main.marblesContainer.ordinalMarbleNr = 0;
-    this.main.marblesContainer.highlight();
-    this.main.listeners.impossibleTextElement.style.display = 'none';
-    Sound.play(SoundsLib.clear);
-  }
+  clearBtnClickHandler = () => this._marblesContainer.clearBoard();
 
-  protected generateEasyBtnHandler = () => {
+  generateEasyBtnHandler = () => {
     const md = this._generator.generateEasy();
-    this.loadAndUpdate(md);
+    this._marblesContainer.writeToMarbleContainerAndUpdate(md);
   }
 
-  protected generateMediumBtnHandler = () => {
+  generateMediumBtnHandler = () => {
     const md = this._generator.generateMedium();
-    this.loadAndUpdate(md);
+    this._marblesContainer.writeToMarbleContainerAndUpdate(md);
   }
 
-  protected generateHardBtnHandler = () => {
+  generateHardBtnHandler = () => {
     const md = this._generator.generateHard();
-    this.loadAndUpdate(md);
+    this._marblesContainer.writeToMarbleContainerAndUpdate(md);
   }
 
-  protected generateExtremeBtnHandler = () => {
+  generateExtremeBtnHandler = () => {
     const md = this._generator.generateExtreme();
-    this.loadAndUpdate(md);
-  }
-/*
-  protected decreaseBtnHandler = () => {
-    Variables.marbleRadius = Variables.marbleRadius > 4 ?
-      --Variables.marbleRadius
-      : Variables.marbleRadius;
-
-    Variables.ringWidth = Variables.ringWidth > 1 ?
-      --Variables.ringWidth
-      : Variables.ringWidth;
-
-    Variables.lineWidth = (Variables.lineWidth > 1 && (Variables.marbleRadius < 5 || Variables.marbleRadius > 12)) ?
-      --Variables.lineWidth
-      : Variables.lineWidth;
-
-    Variables.fontNrSize = (Variables.marbleRadius >= 6) && (Variables.marbleRadius <= 13) ?
-      (Variables.marbleRadius + 2)
-      : 15;
+    this._marblesContainer.writeToMarbleContainerAndUpdate(md);
   }
 
-  protected resetBtnHandler = () => {
-    Variables.marbleRadius = 13;
-    Variables.ringWidth = 2;
-    Variables.lineWidth = 2;
-    Variables.fontNrSize = 13;
-  }
+  decreaseBtnHandler = () => this._marblesContainer.decreaseSizes();
 
-  protected increaseBtnHandler = () => {
-    Variables.marbleRadius = Variables.marbleRadius < Variables.maxMarbleRadius ?
-    ++Variables.marbleRadius
-    : Variables.marbleRadius;
+  resetBtnHandler = () => this._marblesContainer.resetSizes();
 
-    Variables.ringWidth = (Variables.ringWidth < Variables.maxRingWidth && Variables.marbleRadius > 12) ?
-      ++Variables.ringWidth
-      : Variables.ringWidth;
+  increaseBtnHandler = () => this._marblesContainer.increaseSizes();
 
-    Variables.lineWidth = ((Variables.lineWidth < Variables.maxLineWidth) && ((Variables.marbleRadius > 12) || (Variables.marbleRadius < 6))) ?
-      ++Variables.lineWidth
-      : Variables.lineWidth;
-
-    Variables.fontNrSize = (Variables.marbleRadius >= 6) && (Variables.marbleRadius <= 13) ?
-      (Variables.marbleRadius + 2)
-      : 15;
-
-  }
-*/
-  protected addMarbleButtonHandler = () => {
+  addMarbleButtonHandler = () => {
     // window.addEventListener('mousemove', this.mouseMoveHandler);
   }
 
-  protected removeMarbleButtonHandler = () => {
+  removeMarbleButtonHandler = () => {
     // window.removeEventListener('mousemove', this.mouseMoveHandler);
-  }
-
-  private loadAndUpdate(md: MarbleData[]): void {
-    this.main.writeToMarbleContainer(md);
-    Sound.play(SoundsLib.generate);
   }
 
 }

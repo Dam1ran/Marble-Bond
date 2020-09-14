@@ -1,10 +1,6 @@
-import MainEntry from '../main';
-import { SoundsLib } from './sounds-lib';
-import { Sound } from './sound';
 import { Handlers } from './handlers';
-import { delay, filter } from 'rxjs/operators';
 
-export class Listeners extends Handlers {
+export class DomObjects {
 
   saveBtnElement = document.getElementById('saveBtn') as HTMLButtonElement;
   fileInputElement = document.getElementById('fileInput') as HTMLInputElement;
@@ -24,22 +20,20 @@ export class Listeners extends Handlers {
   resetBtnElement = document.getElementById('reset') as HTMLButtonElement;
   increaseBtnElement = document.getElementById('increase') as HTMLButtonElement;
 
-  // stageButtonElements = document.getElementsByClassName('stages')[0].getElementsByTagName('button');
   stagesDivElement = document.getElementById('stages');
 
   addMarbleButtonElement = document.getElementById('addMarble') as HTMLButtonElement;
   removeMarbleButtonElement = document.getElementById('removeMarble') as HTMLButtonElement;
 
-  constructor (_main: MainEntry){
-    super(_main);
+  constructor (private _handlers: Handlers){
     this.initAllListeners();
-    this.initWinListener();
+    // this.initWinListener();
   }
 
-  private initAllListeners(): void {
+  initAllListeners(): void {
     this.initMouseListeners();
     this.initFileLoader();
-    this.initKeys();
+    // this.initKeys();
     this.initStageButtons();
     this.initGenerationButtons();
     this.initSizeButtons();
@@ -47,7 +41,7 @@ export class Listeners extends Handlers {
   }
 
 
-  private disableAllListeners(): void {
+  disableAllListeners(): void {
     this.disableMouseListeners();
     this.disableFileLoader();
     // this.initKeys();
@@ -59,21 +53,21 @@ export class Listeners extends Handlers {
 
 
   private initMouseListeners(): void {
-    window.addEventListener('mousemove', this.mouseMoveHandler);
-    window.addEventListener('mousedown', this.mouseDownHandler);
-    window.addEventListener('mouseup', this.mouseUpHandler);
+    window.addEventListener('mousemove', this._handlers.mouseMoveHandler);
+    window.addEventListener('mousedown', this._handlers.mouseDownHandler);
+    window.addEventListener('mouseup', this._handlers.mouseUpHandler);
   }
   private disableMouseListeners(): void {
-    window.removeEventListener('mousemove', this.mouseMoveHandler);
-    window.removeEventListener('mousedown', this.mouseDownHandler);
-    window.removeEventListener('mouseup', this.mouseUpHandler);
+    window.removeEventListener('mousemove', this._handlers.mouseMoveHandler);
+    window.removeEventListener('mousedown', this._handlers.mouseDownHandler);
+    window.removeEventListener('mouseup', this._handlers.mouseUpHandler);
   }
 
   private initFileLoader(): void {
     this.fileInputElement.value = '';
-    this.fileInputElement.onchange = this.fileInputChangeHandler;
+    this.fileInputElement.onchange = this._handlers.fileInputChangeHandler;
 
-    this.saveBtnElement.onclick = this.saveBtnHandler;
+    this.saveBtnElement.onclick = this._handlers.saveBtnHandler;
   }
   private disableFileLoader(): void {
     this.fileInputElement.value = '';
@@ -81,7 +75,7 @@ export class Listeners extends Handlers {
 
     this.saveBtnElement.onclick = null;
   }
-
+/*
   private initKeys(): void {
     window.addEventListener('keyup', (event: KeyboardEvent) => {
       if (event.defaultPrevented) {
@@ -93,7 +87,7 @@ export class Listeners extends Handlers {
         handled = true;
 
 
-        this.main.marblesContainer.addMarble(this.main.mouse.point);
+        // this.main.marblesContainer.addMarble(this.main.mouse.point);
         Sound.play(SoundsLib.add);
         console.log('A');
       }
@@ -101,7 +95,7 @@ export class Listeners extends Handlers {
       if (event.key !== undefined && event.key === 'd') {
         handled = true;
 
-        this.main.marblesContainer.removeMarble(this.main.mouse.point);
+        // this.main.marblesContainer.removeMarble(this.main.mouse.point);
         console.log('D');
       }
 
@@ -142,22 +136,22 @@ export class Listeners extends Handlers {
       }
     }, true);
   }
-
+*/
 
   private initStageButtons(): void {
-    this.stagesDivElement.addEventListener('click', this.stageBtnOnClickHandler);
+    this.stagesDivElement.addEventListener('click', this._handlers.stageBtnOnClickHandler);
   }
   private disableStageButtons(): void {
-    this.stagesDivElement.removeEventListener('click', this.stageBtnOnClickHandler);
+    this.stagesDivElement.removeEventListener('click', this._handlers.stageBtnOnClickHandler);
   }
 
 
   private initGenerationButtons(): void {
-    this.clearBtnElement.onclick = this.clearBtnClickHandler;
-    this.generateEasyBtnElement.onclick = this.generateEasyBtnHandler;
-    this.generateMediumBtnElement.onclick = this.generateMediumBtnHandler;
-    this.generateHardBtnElement.onclick = this.generateHardBtnHandler;
-    this.generateExtremeBtnElement.onclick = this.generateExtremeBtnHandler;
+    this.clearBtnElement.onclick = this._handlers.clearBtnClickHandler;
+    this.generateEasyBtnElement.onclick = this._handlers.generateEasyBtnHandler;
+    this.generateMediumBtnElement.onclick = this._handlers.generateMediumBtnHandler;
+    this.generateHardBtnElement.onclick = this._handlers.generateHardBtnHandler;
+    this.generateExtremeBtnElement.onclick = this._handlers.generateExtremeBtnHandler;
   }
   private disableGenerationButtons(): void {
     this.clearBtnElement.onclick = null;
@@ -169,9 +163,9 @@ export class Listeners extends Handlers {
 
 
   private initSizeButtons(): void {
-    this.decreaseBtnElement.onclick = this.main.marblesContainer.decreaseSizes;
-    this.resetBtnElement.onclick = this.main.marblesContainer.resetSizes;
-    this.increaseBtnElement.onclick = this.main.marblesContainer.increaseSizes;
+    this.decreaseBtnElement.onclick = this._handlers.decreaseBtnHandler;
+    this.resetBtnElement.onclick = this._handlers.resetBtnHandler;
+    this.increaseBtnElement.onclick = this._handlers.increaseBtnHandler;
   }
   private disableSizeButtons(): void {
     this.decreaseBtnElement.onclick = null;
@@ -181,8 +175,8 @@ export class Listeners extends Handlers {
 
 
   private initCreationButtons(): void {
-    this.addMarbleButtonElement.onclick = this.addMarbleButtonHandler;
-    this.removeMarbleButtonElement.onclick = this.removeMarbleButtonHandler;
+    this.addMarbleButtonElement.onclick = this._handlers.addMarbleButtonHandler;
+    this.removeMarbleButtonElement.onclick = this._handlers.removeMarbleButtonHandler;
   }
   private disableCreationButtons(): void {
     this.addMarbleButtonElement.onclick = null;
@@ -190,31 +184,24 @@ export class Listeners extends Handlers {
 
   }
 
+  updatePageInfo(isDrawingObjects: boolean, nrOfMarbles: number, nrOfBonds: number, nrOfIntersectedBonds: number): void {
 
-  private initWinListener(): void {
+    if (isDrawingObjects) {
 
-    let disabled = false;
-    this.main.marblesContainer.winState$.pipe(filter(v => v), delay(30)).subscribe(
-      () => {
-        if (!this.main.mouse.clicked && !this.main.mouse.middleClicked) {
-          if (!disabled) {
-            setTimeout(() => {
-              this.disableAllListeners();
-              this.main.marblesContainer.animateWin();
-              console.log('disabling hard');
-            }, 300);
-            setTimeout(() => {
-              this.initAllListeners();
-              this.clearBtnClickHandler();
-              this.main.updateContent();
-              disabled = false;
-              console.log('enabling hard');
-            }, 5000);
-          }
-          disabled = true;
+      this.marbleNrDisplayElement.innerText = nrOfMarbles.toString();
+      this.bondNrDisplayElement.innerText = nrOfBonds.toString();
+      this.bondIntersectedNrDisplayElement.innerText = nrOfIntersectedBonds.toString();
+
+      if (nrOfBonds > ((nrOfMarbles - 2) * 3)) {
+        if (nrOfMarbles > 3) {
+          this.impossibleTextElement.style.display = 'block';
         }
+      } else {
+        this.impossibleTextElement.style.display = 'none';
       }
-    );
+    } else if (this != null) {
+      this.marbleNrDisplayElement.innerText = '0';
+    }
 
   }
 
