@@ -7,6 +7,7 @@ import { DomObjects } from './helpers/domObjects';
 import { SoundsLib } from './helpers/sounds-lib';
 import { Sound } from './helpers/sound';
 import { BondCreator } from './entities/bondCreator';
+import { StateController } from './helpers/stateController';
 
 export default class MainEntry {
 
@@ -19,11 +20,17 @@ export default class MainEntry {
     private _bondCreator: BondCreator,
     private _background: Background,
     private _mouse: Mouse,
-    private _domObjects: DomObjects
+    private _domObjects: DomObjects,
+    private _stateController: StateController,
+    private _soundsLib: SoundsLib,
+    private _sound: Sound
   ) {
     this.initListeners();
     this.initAnimation();
     this.initWinListener();
+    this._stateController.loadState();
+    this._domObjects.initTogglers();
+    this.initAutoSave();
   }
 
   private initListeners(): void {
@@ -49,12 +56,12 @@ export default class MainEntry {
     this._animation$.pipe(throttleTime(80)).subscribe(() => {
       if (this._marblesContainer.isHighlight) {
         document.body.style.cursor = 'pointer';
-        Sound.playOnce(SoundsLib.pick);
-        Sound.reset(SoundsLib.drop);
+        this._sound.playOnce(this._soundsLib.pick);
+        this._sound.reset(this._soundsLib.drop);
       } else {
         document.body.style.cursor = 'default';
-        Sound.reset(SoundsLib.pick);
-        Sound.playOnce(SoundsLib.drop);
+        this._sound.reset(this._soundsLib.pick);
+        this._sound.playOnce(this._soundsLib.drop);
       }
     });
 
@@ -106,6 +113,15 @@ export default class MainEntry {
   private setBackground(): void {
     this._ctx.clearRect(0, 0, this._ctx.canvas.width, this._ctx.canvas.height);
     this._background.draw();
+  }
+
+  private initAutoSave(): void {
+    setInterval(() => {
+      if (!this._marblesContainer.isCreationMode) {
+        this._stateController.saveState();
+        this._domObjects.showSavingInProgress();
+      }
+    }, 60000);
   }
 
 }

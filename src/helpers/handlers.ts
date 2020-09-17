@@ -1,11 +1,11 @@
-import { BondCreator } from '../entities/bondCreator';
 import { MarbleContainer } from '../entities/marbleContainer';
+import { Stages } from '../stages/stages';
 import { Generator } from './generator';
 import { MarbleData } from './marbleData';
 import { Mouse } from './mouse';
 import { Sound } from './sound';
 import { SoundsLib } from './sounds-lib';
-import { StageManager } from './stageManager';
+import { StateController } from './stateController';
 
 export class Handlers {
 
@@ -13,9 +13,11 @@ export class Handlers {
     private _ctx: CanvasRenderingContext2D,
     private _mouse: Mouse,
     private _generator: Generator,
-    private _bondCreator: BondCreator,
     private _marblesContainer: MarbleContainer,
-    private _stageManager: StageManager
+    private _stateController: StateController,
+    private _stages: Stages,
+    private _soundsLib: SoundsLib,
+    private _sound: Sound,
   ) { }
 
   mouseMoveHandler = (event: MouseEvent) => {
@@ -51,13 +53,12 @@ export class Handlers {
     }
   }
 
-  saveBtnHandler = () => {
+  saveBtnHandler = (input: HTMLInputElement) => {
     if (this._marblesContainer.collection.length > 0) {
-      const saveFileNameInput = document.getElementById('saveFileName') as HTMLInputElement;
-      const inputValue = saveFileNameInput.value.trim();
+      const inputValue = input.value.trim();
       if (inputValue != null && inputValue !== '') {
-        saveFileNameInput.value = '';
-        this._stageManager.save(inputValue);
+        input.value = '';
+        this._stateController.save(inputValue);
       }
     }
   }
@@ -83,8 +84,8 @@ export class Handlers {
   stageBtnOnClickHandler = (e: MouseEvent) => {
     const target = e.target;
     if (target instanceof HTMLButtonElement) {
-      this._stageManager.loadStage(parseInt(target.innerText, 10));
-      Sound.play(SoundsLib.stageClick);
+      this._stages.loadStage(parseInt(target.innerText, 10));
+      this._sound.play(this._soundsLib.stageClick);
     }
   }
 
@@ -115,6 +116,12 @@ export class Handlers {
   resetBtnHandler = () => this._marblesContainer.resetSizes();
 
   increaseBtnHandler = () => this._marblesContainer.increaseSizes();
+
+  quickSaveHandler = () => this._stateController.saveState();
+
+  enableCreationModeHandler = () => {
+    this._marblesContainer.isCreationMode = true;
+  }
 
   addMarbleButtonHandler = () => {
     // window.addEventListener('mousemove', this.mouseMoveHandler);

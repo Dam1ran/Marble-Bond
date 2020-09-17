@@ -31,7 +31,7 @@ export class Marble {
   }
 
   draw(): void {
-    this.ctx.globalAlpha = 0.5;
+    this.ctx.globalAlpha = 0.5; // todo
     this.ctx.beginPath();
     this.ctx.arc(this.position.xPos, this.position.yPos, Variables.marbleRadius, 0, 2 * Math.PI, false);
     this.ctx.fillStyle = Colors.marble;

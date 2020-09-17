@@ -1,11 +1,22 @@
+import { MarbleContainer } from '../entities/marbleContainer';
 import { MarbleData } from '../helpers/marbleData';
 
 export class Stages {
 
   private stages = new Array<Array<MarbleData>>();
 
-  getStageBy(stageNumber: number): Array<MarbleData> {
+  constructor (
+    private _marblesContainer: MarbleContainer
+  ) {
     this.initStages();
+  }
+
+  loadStage(stageNumber: number): void {
+    const marbleData = this.getStageBy(stageNumber);
+    this._marblesContainer.writeToMarbleContainerAndUpdate(marbleData);
+  }
+
+  getStageBy(stageNumber: number): Array<MarbleData> {
     return this.stages[stageNumber - 1];
   }
 

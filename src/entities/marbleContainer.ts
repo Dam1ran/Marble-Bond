@@ -14,6 +14,7 @@ export class MarbleContainer {
   public collection = new Array<Marble>();
   modified$ = new BehaviorSubject(false);
   winState$ = new BehaviorSubject(false);
+  isCreationMode = false;
 
   ordinalMarbleNr = 0;
   isHighlight = false;
@@ -24,8 +25,13 @@ export class MarbleContainer {
   prevNrOfIntersectedBonds = 9999;
 
   selectedMarble: Marble;
+  private initialized = false;
 
-  constructor (private _ctx: CanvasRenderingContext2D) { }
+  constructor (
+    private _ctx: CanvasRenderingContext2D,
+    private _soundsLib: SoundsLib,
+    private _sound: Sound
+  ) { }
 
   addMarble(position: Point): void {
     this.collection.push(
@@ -45,7 +51,7 @@ export class MarbleContainer {
           marble.removeBond(this.selectedMarble);
         });
         this.collection.splice(indexToDelete, 1);
-        Sound.play(SoundsLib.delete);
+        this._sound.play(this._soundsLib.delete);
       }
     }
     const isNotEmpty = this.collection.length > 0;
@@ -72,6 +78,9 @@ export class MarbleContainer {
       this.isHighlight = true;
     } else {
       this.isHighlight = false;
+    }
+    if (mouse.clicked) {
+      this.initialized = true;
     }
 
   }
@@ -131,7 +140,9 @@ export class MarbleContainer {
     this.collection = [];
     this.ordinalMarbleNr = 0;
     this.prevNrOfIntersectedBonds = 9999;
-
+    if (marbleData === undefined) {
+      return;
+    }
     marbleData.forEach(md => {
       this.addMarble(md.pos);
     });
@@ -142,7 +153,9 @@ export class MarbleContainer {
       });
     });
     this.updateContent();
-    Sound.play(SoundsLib.generate);
+    if (this.initialized) {
+      this._sound.play(this._soundsLib.generate);
+    }
   }
 
   updateContent(): void {
@@ -179,8 +192,10 @@ export class MarbleContainer {
     lines = [];
 
     if (this.prevNrOfIntersectedBonds < this.nrOfIntersectedBonds) {
-      Sound.play(SoundsLib.intersect);
       this.prevNrOfIntersectedBonds = this.nrOfIntersectedBonds;
+      if (this.initialized) {
+        this._sound.play(this._soundsLib.intersect);
+      }
     } else {
       this.prevNrOfIntersectedBonds = this.nrOfIntersectedBonds;
     }
@@ -206,13 +221,13 @@ export class MarbleContainer {
       Colors.marble = Colors.marbleWin;
       Colors.number = Colors.numberWin;
       this.winState$.next(true);
-      Sound.playOnce(SoundsLib.win);
+      this._sound.playOnce(this._soundsLib.win);
     } else {
       Colors.line = Colors.default;
       Colors.marble = Colors.marbleDefault;
       Colors.number = Colors.numberDefault;
       this.winState$.next(false);
-      Sound.reset(SoundsLib.win);
+      this._sound.reset(this._soundsLib.win);
     }
   }
 
@@ -263,7 +278,7 @@ export class MarbleContainer {
     this.collection = [];
     this.ordinalMarbleNr = 0;
     this.highlight();
-    Sound.play(SoundsLib.clear);
+    this._sound.play(this._soundsLib.clear);
   }
 
   setMaxSelectedMarble(point: Point): void {

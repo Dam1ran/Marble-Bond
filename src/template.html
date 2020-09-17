@@ -13,6 +13,10 @@
           <input type="file" id="fileInput">
           <input type="text" maxlength="10" id="saveFileName">
           <button id="saveBtn">Save</button>
+          <div id="saving" title="Press to Quick Save state" draggable="false">
+            <img src="./assets/savingStatic.png" alt="savingStatic" draggable="false">
+            <img src="./assets/saving.gif" alt="saving" draggable="false">
+          </div>
         </div>
         <div id="infos">
           <div class="infoBlocks">
@@ -30,30 +34,59 @@
         </div>
         <div class="impossible">You Cannot Make all Bonds :(</div>
         <div id="generators">
-          <button id="generateEasy">Generate Easy</button>
-          <button id="generateMedium">Generate Medium</button>
-          <button id="generateHard">Generate Hard</button>
-          <button id="generateExtreme">Generate Extreme</button>
+          <div class="section-lbl">Generate:</div>
+          <button id="generateEasy">Easy</button>
+          <button id="generateMedium">Medium</button>
+          <button id="generateHard">Hard</button>
+          <button id="generateExtreme">Extreme</button>
           <button id="clearBtn">Clear</button>
         </div>
-        <div class="sizes">
+        <div class="sizes other-controls">
+          <div class="section-lbl">Settings:</div>
           <button id="decrease">-</button>
           <button id="reset">R</button>
           <button id="increase">+</button>
+          <div class="vertical-divider"></div>
+          <div id="soundToggler">
+            <img id="sound" src="./assets/speaker.png" alt="sound">
+          </div>
+          <div class="vertical-divider"></div>
+
         </div>
         <div id="stages">
-          <p>Play Stages:</p>
-          <button>1</button>
-          <button>2</button>
-          <button>3</button>
-          <button>4</button>
-          <button>5</button>
+          <div class="section-lbl">Play Stages:</div>
+          <div class="stage-buttons">
+            <button>1</button>
+            <button>2</button>
+            <button>3</button>
+            <button>4</button>
+            <button>5</button>
+
+            <button>X</button>
+            <button>X</button>
+            <button>X</button>
+            <button>X</button>
+            <button>X</button>
+            <button>X</button>
+            <button>X</button>
+            <button>X</button>
+            <button>X</button>
+            <button>X</button>
+            <button>X</button>
+            <button>X</button>
+            <button>X</button>
+            <button>X</button>
+            <button>X</button>
+          </div>
         </div>
-        <!-- <button onclick="test()">test</button> -->
+
         <div class="create-wrapper">
-          <p>Create: </p>
-          <button id="addMarble">Add Marble</button>
-          <button id="removeMarble">Remove Marble</button>
+          <div class="section-lbl">Generate:</div>
+          <button id="creationModeBtn">Enable Creation Mode</button>
+          <div class="creation-controls">
+            <button id="addMarble">Add Marble</button>
+            <button id="removeMarble">Remove Marble</button>
+          </div>
         </div>              
       </div>  
 

@@ -2,20 +2,24 @@ export type AudioFile = { sound: HTMLAudioElement, played: boolean };
 
 export class SoundsLib {
 
-  static win: AudioFile;
-  static generate: AudioFile;
-  static add: AudioFile;
-  static clear: AudioFile;
-  static pick: AudioFile;
-  static drop: AudioFile;
-  static draw: AudioFile;
-  static remove: AudioFile;
-  static connect: AudioFile;
-  static delete: AudioFile;
-  static intersect: AudioFile;
-  static stageClick: AudioFile;
+  constructor () {
+    this.init();
+  }
 
-  public static init(): void {
+  win: AudioFile;
+  generate: AudioFile;
+  add: AudioFile;
+  clear: AudioFile;
+  pick: AudioFile;
+  drop: AudioFile;
+  draw: AudioFile;
+  remove: AudioFile;
+  connect: AudioFile;
+  delete: AudioFile;
+  intersect: AudioFile;
+  stageClick: AudioFile;
+
+  private init(): void {
     this.win = { sound: new Audio('audio/win.mp3'), played: false };
     this.generate = { sound: new Audio('audio/generate.mp3'), played: false };
     this.add = { sound: new Audio('audio/add.mp3'), played: false };
