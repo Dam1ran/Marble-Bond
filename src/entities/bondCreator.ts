@@ -24,6 +24,7 @@ export class BondCreator {
 
     if (this._marbleContainer.isCreationMode) {
       if (mouse.middleClicked) {
+
         if (!mouse.middleHold && this._marbleContainer.selectedMarble != null) {
 
           this.initDrawBondStart(mouse);

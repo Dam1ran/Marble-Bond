@@ -38,11 +38,9 @@ export class DomObjects {
     private _sound: Sound
   ){
     this.initAllListeners();
-    // this.initWinListener();
-
     this.saveGif.style.display = 'none';
 
-    this.initKeys();
+    // this.initKeys();
   }
 
   private initSavingImgElements(): void {
@@ -248,7 +246,6 @@ export class DomObjects {
       this.saveGif.style.display = 'none';
     }, 2100);
   }
-
 
   initTogglers(): void {
     this.toggleSound();

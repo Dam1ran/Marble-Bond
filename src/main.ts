@@ -8,6 +8,9 @@ import { SoundsLib } from './helpers/sounds-lib';
 import { Sound } from './helpers/sound';
 import { BondCreator } from './entities/bondCreator';
 import { StateController } from './helpers/stateController';
+import { Handlers } from './helpers/handlers';
+import { GameType } from './helpers/gameType';
+import { Stages } from './stages/stages';
 
 export default class MainEntry {
 
@@ -23,8 +26,10 @@ export default class MainEntry {
     private _domObjects: DomObjects,
     private _stateController: StateController,
     private _soundsLib: SoundsLib,
-    private _sound: Sound
-  ) {
+    private _sound: Sound,
+    private _handlers: Handlers,
+    private _stages: Stages
+    ) {
     this.initListeners();
     this.initAnimation();
     this.initWinListener();
@@ -102,6 +107,32 @@ export default class MainEntry {
               disabled = false;
               console.log('enabling hard');
             }, 5000);
+            setTimeout(() => {
+              if (this._marblesContainer.gameType === GameType.generated) {
+                if (this._marblesContainer.stage === 'easy') {
+                  this._handlers.generateEasyBtnHandler();
+                  console.log('putting easy');
+                }
+                if (this._marblesContainer.stage === 'medium') {
+                  this._handlers.generateMediumBtnHandler();
+                  console.log('putting medium');
+                }
+                if (this._marblesContainer.stage === 'hard') {
+                  this._handlers.generateHardBtnHandler();
+                  console.log('putting hard');
+                }
+                if (this._marblesContainer.stage === 'extreme') {
+                  this._handlers.generateExtremeBtnHandler();
+                  console.log('putting extreme');
+                }
+              } else {
+                const stageNr = Number.parseInt(this._marblesContainer.stage, 10);
+                if (!isNaN(stageNr)) {
+                  this._stages.loadStage(stageNr + 1);
+                  console.log('putting stage: ' + (stageNr + 1));
+                }
+              }
+            }, 6500);
           }
           disabled = true;
         }

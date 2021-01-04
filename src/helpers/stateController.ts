@@ -1,6 +1,7 @@
 import { MarbleContainer } from '../entities/marbleContainer';
 import { Marble } from '../shapes/marble';
 import { Point } from '../shapes/point';
+import { GameType } from './gameType';
 import { MarbleData } from './marbleData';
 import { Sound } from './sound';
 
@@ -78,16 +79,28 @@ export class StateController {
 
     localStorage.removeItem('soundOff');
     localStorage.setItem('soundOff', this._sound.soundOff ? 'true' : 'false');
+
+    localStorage.removeItem('gameType');
+    localStorage.setItem('gameType', this._marblesContainer.gameType.toString());
+
+    localStorage.removeItem('stage');
+    localStorage.setItem('stage', this._marblesContainer.stage);
   }
 
   loadState(): void {
     const marblesData = JSON.parse(localStorage.getItem('marblesData')) as MarbleData[];
     if (marblesData?.length > 0) {
-      this._marblesContainer.writeToMarbleContainerAndUpdate(marblesData);
+      this._marblesContainer.writeToMarbleContainerAndUpdate(marblesData, GameType.loaded, 'loaded');
     }
 
     const soundOff = localStorage.getItem('soundOff');
     this._sound.soundOff = soundOff === 'true' ? true : false;
+
+    const gameType = localStorage.getItem('gameType');
+    this._marblesContainer.gameType = Number.parseInt(gameType, 10) as GameType;
+
+    const stage = localStorage.getItem('stage');
+    this._marblesContainer.stage = stage;
   }
 
 }

@@ -8,6 +8,7 @@ import { Variables } from '../helpers/variables';
 import { MarbleData } from '../helpers/marbleData';
 import { Line } from '../shapes/line';
 import { Colors } from '../helpers/colors';
+import { GameType } from '../helpers/gameType';
 
 export class MarbleContainer {
 
@@ -15,6 +16,8 @@ export class MarbleContainer {
   modified$ = new BehaviorSubject(false);
   winState$ = new BehaviorSubject(false);
   isCreationMode = false;
+  gameType: GameType;
+  stage: string = '';
 
   ordinalMarbleNr = 0;
   isHighlight = false;
@@ -136,7 +139,7 @@ export class MarbleContainer {
     Variables.fontNrSize = 13;
   }
 
-  writeToMarbleContainerAndUpdate(marbleData: MarbleData[]): void {
+  writeToMarbleContainerAndUpdate(marbleData: MarbleData[], gameType: GameType, stage: string): void {
     this.collection = [];
     this.ordinalMarbleNr = 0;
     this.prevNrOfIntersectedBonds = 9999;
@@ -153,6 +156,8 @@ export class MarbleContainer {
       });
     });
     this.updateContent();
+    this.gameType = gameType;
+    this.stage = stage;
     if (this.initialized) {
       this._sound.play(this._soundsLib.generate);
     }

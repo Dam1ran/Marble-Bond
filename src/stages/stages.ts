@@ -1,4 +1,5 @@
 import { MarbleContainer } from '../entities/marbleContainer';
+import { GameType } from '../helpers/gameType';
 import { MarbleData } from '../helpers/marbleData';
 
 export class Stages {
@@ -13,7 +14,7 @@ export class Stages {
 
   loadStage(stageNumber: number): void {
     const marbleData = this.getStageBy(stageNumber);
-    this._marblesContainer.writeToMarbleContainerAndUpdate(marbleData);
+    this._marblesContainer.writeToMarbleContainerAndUpdate(marbleData, GameType.stage, stageNumber.toString());
   }
 
   getStageBy(stageNumber: number): Array<MarbleData> {

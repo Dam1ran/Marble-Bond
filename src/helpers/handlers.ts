@@ -1,5 +1,6 @@
 import { MarbleContainer } from '../entities/marbleContainer';
 import { Stages } from '../stages/stages';
+import { GameType } from './gameType';
 import { Generator } from './generator';
 import { MarbleData } from './marbleData';
 import { Mouse } from './mouse';
@@ -71,7 +72,7 @@ export class Handlers {
         try {
           const marbleData = JSON.parse(text) as MarbleData[];
           e.target.value = '';
-          this._marblesContainer.writeToMarbleContainerAndUpdate(marbleData);
+          this._marblesContainer.writeToMarbleContainerAndUpdate(marbleData, GameType.loaded, 'loaded');
         } catch (e) {
           console.warn('Load File Error!');
           console.warn(e);
@@ -93,22 +94,22 @@ export class Handlers {
 
   generateEasyBtnHandler = () => {
     const md = this._generator.generateEasy();
-    this._marblesContainer.writeToMarbleContainerAndUpdate(md);
+    this._marblesContainer.writeToMarbleContainerAndUpdate(md, GameType.generated, 'easy');
   }
 
   generateMediumBtnHandler = () => {
     const md = this._generator.generateMedium();
-    this._marblesContainer.writeToMarbleContainerAndUpdate(md);
+    this._marblesContainer.writeToMarbleContainerAndUpdate(md, GameType.generated, 'medium');
   }
 
   generateHardBtnHandler = () => {
     const md = this._generator.generateHard();
-    this._marblesContainer.writeToMarbleContainerAndUpdate(md);
+    this._marblesContainer.writeToMarbleContainerAndUpdate(md, GameType.generated, 'hard');
   }
 
   generateExtremeBtnHandler = () => {
     const md = this._generator.generateExtreme();
-    this._marblesContainer.writeToMarbleContainerAndUpdate(md);
+    this._marblesContainer.writeToMarbleContainerAndUpdate(md, GameType.generated, 'extreme');
   }
 
   decreaseBtnHandler = () => this._marblesContainer.decreaseSizes();
@@ -119,9 +120,7 @@ export class Handlers {
 
   quickSaveHandler = () => this._stateController.saveState();
 
-  enableCreationModeHandler = () => {
-    this._marblesContainer.isCreationMode = true;
-  }
+  enableCreationModeHandler = () => this._marblesContainer.isCreationMode = true;
 
   addMarbleButtonHandler = () => {
     // window.addEventListener('mousemove', this.mouseMoveHandler);

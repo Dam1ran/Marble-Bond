@@ -40,7 +40,19 @@ const _handlers = new Handlers(_ctx, _mouse, _generator, _marbleContainer, _stat
 const _domObjects = new DomObjects(_handlers, _sound);
 
 const _background = new Background(_ctx);
-const _main = new MainEntry(_ctx, _marbleContainer, _bondCreator, _background, _mouse, _domObjects, _stateController, _soundsLib, _sound);
+const _main = new MainEntry(
+  _ctx,
+  _marbleContainer,
+  _bondCreator,
+  _background,
+  _mouse,
+  _domObjects,
+  _stateController,
+  _soundsLib,
+  _sound,
+  _handlers,
+  _stages
+);
 
 
 function getContext (): CanvasRenderingContext2D {
